@@ -35,8 +35,6 @@ vo_params.bootstrap.RANSAC.num_iterations = 500;
 vo_params.bootstrap.RANSAC.pixel_tolerance = 10;
 vo_params.bootstrap.RANSAC.points_needed = 8;
 
-% internal plotting
-vo_params.bootstrap.plotting = false;
 %% [ProcessFrame] 
 % For KLT tracker
 % See: https://ch.mathworks.com/help/vision/ref/vision.pointtracker-system-object.html

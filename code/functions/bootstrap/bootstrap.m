@@ -23,14 +23,6 @@ later_img_keypoints = fliplr(later_img_keypoints)';
 later_matched_kps = later_img_keypoints(:,point_validity);
 pre_matched_kps = prev_img_keypoints(:,point_validity);
 
-%% plot for the keypoints for both image
-if params.bootstrap.plotting
-    figure(2);
-    imshow(prev_img);
-    hold on;
-    plotMatches(1:size(pre_matched_kps,2), later_matched_kps(1:2,:), pre_matched_kps(1:2,:));
-end
-
 %% RANSAC part
 % prepare for RANSAC inputs
 % (row, col) --> (u,v)
@@ -103,25 +95,6 @@ P_C1 = P_C1(:,saved_P);
 landmarks = P_C1(1:3,:);
 frame2_kps = selected_later_matched_kps(:,saved_P);
 frame2_kps = frame2_kps(1:2,:);
-
-%% plot the points 
-if params.bootstrap.plotting
-    figure(3)
-    plot3(P_C1(1,:), P_C1(2,:), P_C1(3,:), 'o');
-
-    plotCoordinateFrame(eye(3),zeros(3,1), 0.8);
-    text(-0.1,-0.1,-0.1,'Cam 1','fontsize',10,'color','k','FontWeight','bold');
-
-    %center_cam2_W = -R_C2_W'*T_C2_W;
-    center_cam2_W = -R_C2_W'*T_C2_W;
-    plotCoordinateFrame(R_C2_W',center_cam2_W, 0.8);
-    text(center_cam2_W(1)-0.1, center_cam2_W(2)-0.1, center_cam2_W(3)-0.1,'Cam 2','fontsize',10,'color','k','FontWeight','bold');
-    axis equal
-    axis square
-    rotate3d on;
-    view(90,0)
-    grid
-end 
 
 end
 

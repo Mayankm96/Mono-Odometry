@@ -63,10 +63,6 @@ if ds == 0
         sprintf('%06d.png',bootstrap_frames(1))]);
     img1 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrap_frames(2))]);
-    [landmarks, frame2_kps] = bootstrap(img0, img1, vo_params);
-    % landmark will be a 3xN matrix 
-    % frame2_kps will be a 2*N matrix
-
 elseif ds == 1
     img0 = rgb2gray(imread([malaga_path ...
         '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
@@ -82,6 +78,12 @@ elseif ds == 2
 else
     assert(false);
 end
+
+[landmarks, frame2_kps] = bootstrap(img0, img1, vo_params);
+% Output format:
+% landmark will be a 3xN matrix 
+% frame2_kps will be a 2*N matrix (Warning: remember to flipud it)
+
 fprintf('\n\nBootstrap finished !');
 
 %% Continuous operation

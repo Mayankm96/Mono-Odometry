@@ -1,4 +1,15 @@
 function [state, pose, p3p_inlier_mask, klt_tracked_indices] = processFrame(curr_frame, prev_frame, prev_state, params)
+%% Function descriptions
+% Input
+% curr_image: grey scale image matrix
+% prev_frame: grey scale image matrix
+% prev_state: struct inculdes state.P(2xk) & state.X(3xk)
+% params: struct includes all parameters under "process" scope
+% Output
+% state: struct inculdes state.P(2xk) & state.X(3xk)
+% pose: 3 x 4 matrix to represent transform from camera to world
+% p3p_inlier_mask: 1 x k vector to mark keypoint used for p3p estimation
+% klt_tracked_indices: k x 1 vector to indice the tracked keypoints by KLT
 
 % Construct the state S strcut
 % P: 2D tracked keypoints array [2 x k]
