@@ -140,6 +140,8 @@ if nargout>1 varargout{2}=[hheads;hhgrd]; end
 if nargout>0 varargout{1}=[hlines;hlgrd]; end
 
 return;
+end
+
 function [newx,newy,newz]=rotatedata(xdata,ydata,zdata,azel,alpha,origin)
 % 
 % ROTATEDATA rotate data about specified origin and direction.
@@ -170,16 +172,15 @@ function [newx,newy,newz]=rotatedata(xdata,ydata,zdata,azel,alpha,origin)
 %   Copyright 1984-2002 The MathWorks, Inc. 
 %   $Revision: 5.17 $  $Date: 2002/06/05 20:05:16 $
 
-%�ж���������ĸ���
 if nargin<6
     error('Not enough input arguments! Type ''help rotatedata'' to get some help!')
 end
 
-if prod(size(azel)) == 2 % theta, phi
+if numel(azel) == 2 % theta, phi
     theta = pi*azel(1)/180;
     phi = pi*azel(2)/180;
     u = [cos(phi)*cos(theta); cos(phi)*sin(theta); sin(phi)];
-elseif prod(size(azel)) == 3 % direction vector
+elseif numel(azel) == 3 % direction vector
     u = azel(:)/norm(azel);
 end
 
@@ -203,3 +204,5 @@ newxyz = newxyz*rot;
 newx = origin(1) + reshape(newxyz(:,1),m,n);
 newy = origin(2) + reshape(newxyz(:,2),m,n);
 newz = origin(3) + reshape(newxyz(:,3),m,n);
+
+end

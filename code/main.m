@@ -80,7 +80,7 @@ fprintf('\n\nBootstrap finished !');
 %% Continuous operation
 
 % Create initial state using the output of bootstrapping
-prev_state.P = I2_keypts;   % NOTE: M x 2 with [row, col] notation
+prev_state.P = I2_keypts;   % NOTE: M x 2 with [u, v] notation
 prev_state.X = landmarks;   % NOTE: M x 3
 prev_state.C = [];
 prev_state.F = [];
@@ -110,7 +110,7 @@ for i = start_frame:last_frame
     end
     
     % process the input frame
-    [state, pose, p3p_inlier_mask, klt_tracked_indices] = processFrame(image, prev_image, prev_state, vo_params);
+    [state, pose, p3p_inlier_mask, klt_tracked_indices] = processFrame(image, prev_image, prev_state, K, vo_params.process);
     if (~isempty(pose))
         R_C_W = pose(:,1:3);
         t_C_W = pose(:,4);
