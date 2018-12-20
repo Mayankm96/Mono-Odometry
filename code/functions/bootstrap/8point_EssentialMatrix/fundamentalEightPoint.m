@@ -13,20 +13,26 @@ function F = fundamentalEightPoint(p1,p2)
 %
 % Output:
 %  - F(3,3) : fundamental matrix
-Q = [;];
-for i = 1: size(p1,2)
-    Q = [Q; transpose(kron(p1(:,i), p2(:,i)))];
+
+N = size(p1, 2);
+
+% create Q matrix for problem Q vec(F) = 0
+Q = [];
+for i = 1:N
+    % calculating Kronecker product
+    Q_i = kron(p1(:, i), p2(:, i));
+    % concatenating to the system of equation
+    Q = vertcat(Q, Q_i');
 end
-[~,~,V] = svd(Q,'econ');
-vecF = V(:,end);
-F = reshape(vecF,3,3);
-[u,s,v] = svd(F);
-s(3,3) = 0;
-F = u*s*v';
 
+% obtaining solution using SVD
+[~, ~, V] = svd(Q);
+F = V(:, end);
+F = reshape(F, 3, 3);
 
+% forcing that det(F) = 0
+[U, S, V] = svd(F);
+S(3, 3) = 0;
+F = U * S * V';
 
-
-
-
-
+end

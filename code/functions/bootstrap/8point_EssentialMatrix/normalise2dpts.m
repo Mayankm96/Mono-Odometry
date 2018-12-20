@@ -7,21 +7,30 @@ function [newpts, T] = normalise2dpts(pts)
 %
 % Usage:   [newpts, T] = normalise2dpts(pts)
 %
-% Argument:
-%   pts -  3xN array of 2D homogeneous coordinates
+% INPUT:
+%   - pts (3, N): array of 2D homogeneous coordinates
 %
-% Returns:
-%   newpts -  3xN array of transformed 2D homogeneous coordinates.
-%   T      -  The 3x3 transformation matrix, newpts = T*pts
+% OUTPUT:
+%   - newpts(3, N): array of transformed 2D homogeneous coordinates.
+%   - T(3, 3): transformation matrix, newpts = T*pts
 
-ptseuc = UnHomogCoords(pts);
-mean_pt = mean(ptseuc,2);
-pt_euc_cen = ptseuc - mean_pt;
+N = size(pts, 2);
 
-std_p = mean(sqrt(sum(pt_euc_cen.^2))); % mean standard deviation
-std_s = sqrt(2)/std_p;
-T = [std_s 0 -std_s*mean_pt(1);  0 std_s -std_s*mean_pt(2); 0 0 1];
-newpts = T*pts;
+% calculate statistic
+pts_cart = pts(1:2, :);
+mu = mean(pts_cart, 2);
+std = 1/N * sum(sum((pts_cart - mu).^2, 1));
+s = sqrt(2) / std;
+
+% normalizing matrix
+T = [s, 0, -s * mu(1); ...
+      0, s, -s * mu(2); ...
+      0, 0, 1];
+  
+% normalized points
+newpts = T * pts;
+
+end
 
 
 

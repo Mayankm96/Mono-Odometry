@@ -1,28 +1,31 @@
-function keypoints = selectKeypoints(scores, num, r)
-% Selects the num best scores as keypoints and performs non-maximum 
-% supression of a (2r + 1)*(2r + 1) box around the current maximum.
-% INPUT (1)scores ¡Gharris score array 
-%             (2) num¡Gnumberof keypoints we want to select
-%             (3) r ¡Gnonmaximum_supression_radius
-% OUTPUT keypoint array [2, num]
+function keypts = selectKeypoints(scores, max_num, radius)
+%%SELECTKEYPOINTS Select a certain number of points on the basis of their 
+% harris scores through non-maximum supression on a (2r + 1)*(2r + 1) box
+% to obatin only the strongest features
+% 
+% INPUT: 
+%   - scores (H, W) : an array comprising of harris score at each pixel
+%   - max_num: number of keypoints required
+%   - radius: radius of the searching block in non-maximum supression
+%
+% OUTPUT: 
+%   - keypts (M, 2): an array of detected keypoints and their location
 
-% using this method we won't have to worry about 
-% exceeding boundary problem
-expand_scores = padarray(scores, [r r]);
+keypts = zeros(max_num, 2);
+% pad the input array by r
+temp_scores = padarray(scores, [radius radius]);
 
-keypoints = zeros(2, num);
-
-for i = 1:num
-    % search for the highest harris score
-    [~, ind] = max(expand_scores(:));
-    % find the index of it
-    [index_y,index_x] = ind2sub(size(expand_scores), ind);
-    kp = [index_y, index_x];
-    % we have to minus r because we expand the score matrix by r 
-    keypoints(:,i) = kp-r;
-    % we have to set the surrounding pixels to zero
-    % otherwise we may select the surrounding pixels with large values
-    expand_scores(kp(1)-r : kp(1)+r, kp(2)-r : kp(2)+r) = 0;
+for i = 1:max_num
+    % search for the keypoint with the highest harris score
+    [~, index] = max(temp_scores(:));
+    % find the location of the maxima
+    [row, col] = ind2sub(size(temp_scores), index);
+    kp = [row, col];
+    % account for the padding in the score matrix and store keypoint 
+    keypts(i, :) = kp - radius;
+    % set all pixels around the maxima to zero to prevent them from being selected again
+    temp_scores(kp(1)-radius : kp(1)+radius, kp(2)-radius : kp(2)+radius) = 0;
 end
+
 end
 
