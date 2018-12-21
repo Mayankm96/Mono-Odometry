@@ -1,5 +1,5 @@
 function [R,T] = disambiguateRelativePose(Rots, u3, p1, p2, K1, K2)
-% DISAMBIGUATERELATIVEPOSE Finds the correct relative camera pose (among
+%%DISAMBIGUATERELATIVEPOSE Finds the correct relative camera pose (among
 % four possible configurations) by returning the one that yields points
 % lying in front of the image plane (with positive depth).
 %
@@ -18,29 +18,36 @@ function [R,T] = disambiguateRelativePose(Rots, u3, p1, p2, K1, K2)
 %   where [R|t] = T_C1_C0 = T_C1_W is a transformation that maps points
 %   from the world coordinate system (identical to the coordinate system of camera 0)
 %   to camera 1.
-%
 
-% Count number of points lying in front of image plane for possible
-% disambiguities
-count_front = zeros(size(Rots, 3), 1);
+% Projection matrix of camera 1
+M1 = K1 * eye(3,4); 
 
-for i = 1:size(Rots, 3)
-    M1 = K1 * horzcat(eye(3), zeros(3, 1));
-    M2 = K2 * horzcat(Rots(:, :, i), u3);
-    pts_3D = linearTriangulation(p1, p2, M1, M2);
+total_points_in_front_best = 0;
+
+for iRot = 1:2
+    R_C1_C0_test = Rots(:,:,iRot);
     
-    for pt = pts_3D
-        if pt(3) > 0
-            count_front(i) = count_front(i) + 1;
+    for iSignT = 1:2
+        T_C1_C0_test = u3 * (-1)^iSignT;
+        
+        M2 = K2 * [R_C1_C0_test, T_C1_C0_test];
+        P_C0 = linearTriangulation(p1, p2,M1,M2);
+        
+        % project in both cameras
+        P_C1 = [R_C1_C0_test T_C1_C0_test] * P_C0;
+        
+        num_points_in_front0 = sum(P_C0(3,:) > 0);
+        num_points_in_front1 = sum(P_C1(3,:) > 0);
+        total_points_in_front = num_points_in_front0 + num_points_in_front1;
+              
+        if (total_points_in_front > total_points_in_front_best)
+            % Keep the rotation that gives the highest number of points
+            % in front of both cameras
+            R = R_C1_C0_test;
+            T = T_C1_C0_test;
+            total_points_in_front_best = total_points_in_front;
         end
     end
 end
-
-% Find index corresponding to the case with maximum number of points in
-% front of image plane
-[~, index] = max(count_front);
-% Take solution corresponding to the maximum count
-R = Rots(:, :, index);
-T = u3;
 
 end
