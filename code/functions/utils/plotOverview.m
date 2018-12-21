@@ -37,7 +37,7 @@ set(gcf, 'GraphicsSmoothing', 'on');
 
 % plot trajectory
 if (numel(R_W_C) > 0)
-    plotCoordinateFrame(R_W_C, t_W_C, 2); % convert from R_C_W to R_W_C
+    plotCoordinateFrame(R_W_C, t_W_C, 2);
     view(0,0);
 end
     
