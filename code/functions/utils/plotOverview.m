@@ -1,16 +1,15 @@
-function plotOverview(curr_image, curr_state, prev_state, R_C_W, t_C_W, trajectory)
+function plotOverview(curr_image, curr_state, prev_state, R_W_C, t_W_C, trajectory)
 %%PLOTOVERVIEW Pretty plotting 
 %
 % INPUT:
 %   - curr_image(H, W): grey scale image matrix at current time t
 %   - curr_state(struct): inculdes state.P(2xk) & state.X(3xk)
 %   - prev_state(struct): inculdes state.P(2xk) & state.X(3xk)
-%   - R_C_W(3, 3): matrix to represent rotation from camera to world
-%   - t_C_W(3, 1): vector to represent translation from camera to world
+%   - R_W_C(3, 3): rotation matrix of camera wrt world frame
+%   - t_W_C(3, 1): translation of camera wrt world frame
 %   - trajectory(3, N): matrix storing entire estimated trajectory poses
 
 figure(1);
-clf('reset');
 
 %% Show image with keypoints tracking
 subplot(2,2,[1 2]);
@@ -37,8 +36,8 @@ scatter3(landmarks(1, :), landmarks(2, :), landmarks(3, :), 5, 'k');
 set(gcf, 'GraphicsSmoothing', 'on');
 
 % plot trajectory
-if (numel(R_C_W) > 0)
-    plotCoordinateFrame(R_C_W', -R_C_W'*t_C_W, 2); % convert from R_C_W to R_W_C
+if (numel(R_W_C) > 0)
+    plotCoordinateFrame(R_W_C, t_W_C, 2); % convert from R_C_W to R_W_C
     view(0,0);
 end
     

@@ -113,20 +113,20 @@ for i = start_frame:last_frame
     % process the input frame
     [state, pose, num_p3p_inliers] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process);
     if (~isempty(pose))
-        R_C_W = pose(:,1:3);
-        t_C_W = pose(:,4);
+        R_W_C = pose(:,1:3);
+        t_W_C = pose(:,4);
     end
     
     % Check camera pose
     if (numel(pose) > 0)
-        trajectory = [trajectory, -R_C_W'*t_C_W]; % append the trajectory
+        trajectory = [trajectory, t_W_C]; % append the trajectory
         disp(['Frame ' num2str(i) ' localized with ' num2str(num_p3p_inliers) ' inliers!']);
     else
         warning(['Frame ' num2str(i) ' failed tracking!']);
     end
     
     % plot the result
-    plotOverview(curr_image, state, prev_state, R_C_W, t_C_W, trajectory);
+    plotOverview(curr_image, state, prev_state, R_W_C, t_W_C, trajectory);
     pause(0.001);
     
     % update the state and image for next iteration
