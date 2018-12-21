@@ -1,4 +1,4 @@
-function [state, T_C2_W, num_p3p_inliers] = processFrame(curr_frame, prev_frame, ...
+function [state, pose, num_p3p_inliers] = processFrame(curr_frame, prev_frame, ...
                                             prev_state, K, process_params)
 %%PROCESSFRAME Perform continuous VO pipeline with a markov assumption over
 %%the state of the VO algorithm in which new landmarks are added to
@@ -16,7 +16,7 @@ function [state, T_C2_W, num_p3p_inliers] = processFrame(curr_frame, prev_frame,
 %
 % OUTPUT:
 %   - state(struct): inculdes state.P(K, 2) & state.X(K, 3)
-%   - T_C2_W (3, 4): transformation from camera to world frame
+%   - pose (3, 4): pose of camera with respect to world frame
 %   - num_p3p_inliers: number of inliers in P3P using RANSAC
 
 %% Construct the state S strcut
@@ -59,13 +59,13 @@ state.X = prev_state.X(tracked_indices, :);
 T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
 
+% camera pose with respect to world 
+pose = [R_C2_W', - R_C2_W' * t_C2_W];
+
 % Remove landmarks that lie behind the camera
-points_3D = R_C2_W' * state.X' - R_C2_W' * t_C2_W;
+points_3D = R_C2_W * state.X' + t_C2_W;
 state.X = state.X(points_3D(3, :) > 0, :);
 state.P = state.P(points_3D(3, :) > 0, :);
-    
-% Output: H_W_C
-% pose = [R_C_W', -R_C_W'*t_C_W]; % convert from R_C_W to R_W_C
 
 %% Step 3: Triangulating new landmarks from candidate keypoints in previous state
 
@@ -95,14 +95,12 @@ if ~isempty(prev_state.C)
         
         % iterate over each candidate keypoint
         for i = 1:N
+            % compute transformation from world to cam
             T_C1_W = reshape(state.T(i, :), [3, 4]);
-            % compute transformation from world to camera
-            T_W_C1 = [T_C1_W(:, 1:3)', - T_C1_W(:, 1:3)' * T_C1_W(:, 4)];
-            T_W_C2 = [T_C2_W(:, 1:3)', - T_C2_W(:, 1:3)' * T_C2_W(:, 4)];
-            
+
             % compute projection matrices
-            M1 = K * T_W_C1;
-            M2  = K * T_W_C2;
+            M1 = K * T_C1_W;
+            M2  = K * T_C2_W;
             
             % convert to homogenous coordinates
             keypt_C1 = [state.F(i, :)'; 1];
@@ -113,8 +111,8 @@ if ~isempty(prev_state.C)
             
             % compute location of landmark in current and first
             % observations
-            X_C2 = T_W_C2(:, 1:3) * X_W(1:3, :) + T_W_C2(:, 4);
-            X_C1 = T_W_C1(:, 1:3) * X_W(1:3, :) + T_W_C1(:, 4);
+            X_C2 = T_C2_W(:, 1:3) * X_W(1:3, :) + T_C2_W(:, 4);
+            X_C1 = T_C1_W(:, 1:3) * X_W(1:3, :) + T_C1_W(:, 4);
 
             % check if 3D point is infront of the camera 
             if X_C2(3) > 0                
