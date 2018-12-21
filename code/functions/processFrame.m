@@ -1,5 +1,5 @@
-function [state, pose, num_p3p_inliers] = processFrame(curr_frame, prev_frame, ...
-                                            prev_state, K, process_params)
+function [state, pose, num_p3p_inliers, tracked_state_keypts] = processFrame ...
+                                    (curr_frame, prev_frame, prev_state, K, process_params)
 %%PROCESSFRAME Perform continuous VO pipeline with a markov assumption over
 %%the state of the VO algorithm in which new landmarks are added to
 %%maintain consistency
@@ -18,6 +18,7 @@ function [state, pose, num_p3p_inliers] = processFrame(curr_frame, prev_frame, .
 %   - state(struct): inculdes state.P(K, 2) & state.X(K, 3)
 %   - pose (3, 4): pose of camera with respect to world frame
 %   - num_p3p_inliers: number of inliers in P3P using RANSAC
+%   - tracked_state_keypts(K, 1): keypoint indices tracked through KLT
 
 %% Construct the state S strcut
 % P: 2D tracked keypoints array (N, 2)
@@ -33,12 +34,12 @@ tracker = vision.PointTracker('NumPyramidLevels', process_params.KLT.num_pyramid
                           
 % compute the tracked keypoints in current frame from previous frame
 initialize(tracker, prev_state.P, prev_frame);
-[curr_keypts, tracked_indices] = tracker(curr_frame);
+[curr_keypts, tracked_state_keypts] = tracker(curr_frame);
 release(tracker);
 
 % copy tracked keypoints and associated landmarks into the current state 
-state.P = curr_keypts(tracked_indices, :);
-state.X = prev_state.X(tracked_indices, :);
+state.P = curr_keypts(tracked_state_keypts, :);
+state.X = prev_state.X(tracked_state_keypts, :);
 
 % plot matching for sanity check!
 % figure(2);

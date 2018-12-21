@@ -1,4 +1,4 @@
-function plotOverview(curr_image, curr_state, prev_state, R_W_C, t_W_C, trajectory)
+function plotOverview(curr_image, curr_state, prev_state, R_W_C, t_W_C, trajectory, tracked_state_keypts)
 %%PLOTOVERVIEW Pretty plotting 
 %
 % INPUT:
@@ -8,7 +8,7 @@ function plotOverview(curr_image, curr_state, prev_state, R_W_C, t_W_C, trajecto
 %   - R_W_C(3, 3): rotation matrix of camera wrt world frame
 %   - t_W_C(3, 1): translation of camera wrt world frame
 %   - trajectory(3, N): matrix storing entire estimated trajectory poses
-
+%   - tracked_state_keypts(K, 1): indices of tracked keypoints in state
 figure(1);
 
 %% Show image with keypoints tracking
@@ -16,7 +16,7 @@ subplot(2,2,[1 2]);
 imshow(curr_image);
 hold on;      
 % convert matrix shape from M x 2 to 2 x M
-prev_keypoints = prev_state.P';
+prev_keypoints = prev_state.P(tracked_state_keypts, :)';
 curr_keypoints = curr_state.P';
 plot(prev_keypoints(1, :), prev_keypoints(2, :), '+r', 'LineWidth', 2)
 plot(curr_keypoints(1, :), curr_keypoints(2, :), '+g', 'LineWidth', 2)

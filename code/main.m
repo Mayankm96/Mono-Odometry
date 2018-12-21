@@ -111,7 +111,7 @@ for i = start_frame:last_frame
     end
     
     % process the input frame
-    [state, pose, num_p3p_inliers] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process);
+    [state, pose, num_p3p_inliers, tracked_state_keypts] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process);
     
     % Check camera pose
     if (~isempty(pose))
@@ -125,7 +125,7 @@ for i = start_frame:last_frame
     end
     
     % plot the result
-    plotOverview(curr_image, state, prev_state, R_W_C, t_W_C, trajectory);
+    plotOverview(curr_image, state, prev_state, R_W_C, t_W_C, trajectory, tracked_state_keypts);
     pause(0.001);
     
     % update the state and image for next iteration
