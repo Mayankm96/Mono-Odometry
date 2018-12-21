@@ -32,7 +32,7 @@ vo_params.bootstrap.KLT.block_size = [15 15];
 vo_params.bootstrap.KLT.max_iterations = 60;
 
 % For RANSAC
-vo_params.bootstrap.RANSAC.num_iterations = 500;
+vo_params.bootstrap.RANSAC.num_iterations = 100;
 vo_params.bootstrap.RANSAC.num_sampling_points = 12;
 vo_params.bootstrap.RANSAC.min_inlier_points = 6;
 vo_params.bootstrap.RANSAC.pixel_tolerance = 5;
