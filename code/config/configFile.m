@@ -22,7 +22,7 @@ data_params.use_multithreads = 0;                % 0: disabled, 1: enabled
 % harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
 vo_params.bootstrap.harris.kappa = 0.08;
-vo_params.bootstrap.harris.num_keypoints = 500;
+vo_params.bootstrap.harris.num_keypoints = 1000;
 vo_params.bootstrap.harris.nonmaximum_supression_radius = 10;
 
 % KLT tracking 

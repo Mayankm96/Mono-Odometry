@@ -126,6 +126,7 @@ for i = start_frame:last_frame
     
     % plot the result
     plotOverview(image, state, prev_state, klt_tracked_indices, R_C_W, t_C_W, trajectory);
+    pause(0.001);
     
     % update the state and image for next iteration
     prev_state = state;

@@ -46,7 +46,7 @@ I2_matched_kpts = [I2_matched_kpts, ones(M, 1)];
 min_inlier_count = bootstrap_params.RANSAC.min_inlier_points;
 pixel_tolerance = bootstrap_params.RANSAC.pixel_tolerance;
 num_iterations = bootstrap_params.RANSAC.num_iterations;
-num_sampling_points = bootstrap_params.RANSAC.num_sampling_points;
+num_sample_points = bootstrap_params.RANSAC.num_sampling_points;
 
 % initialize variables for RANSAC
 best_inlier_mask = zeros(M, 1);
@@ -55,7 +55,7 @@ max_num_inliers = 0;
 % using RANSAC to find best R & T
 for iter = 1: num_iterations
     % sample data from keypoints detected in frame 1 and 2
-    [I1_kpts_sampled, idx] = datasample(I1_matched_kps, num_sampling_points, 'Replace', false);
+    [I1_kpts_sampled, idx] = datasample(I1_matched_kps, num_sample_points, 'Replace', false);
     I2_kpts_sampled = I2_matched_kpts(idx, :);
     
     % compute Essential Matrix and decompose it to obtain relative pose of 
