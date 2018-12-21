@@ -1,4 +1,4 @@
-function [state, pose, num_p3p_inliers] = processFrame(curr_frame, prev_frame, ...
+function [state, T_C2_W, num_p3p_inliers] = processFrame(curr_frame, prev_frame, ...
                                             prev_state, K, process_params)
 %%PROCESSFRAME Perform continuous VO pipeline with a markov assumption over
 %%the state of the VO algorithm in which new landmarks are added to
@@ -16,7 +16,7 @@ function [state, pose, num_p3p_inliers] = processFrame(curr_frame, prev_frame, .
 %
 % OUTPUT:
 %   - state(struct): inculdes state.P(K, 2) & state.X(K, 3)
-%   - pose (3, 4): an array to represent transform from camera to world
+%   - T_C2_W (3, 4): transformation from camera to world frame
 %   - num_p3p_inliers: number of inliers in P3P using RANSAC
 
 %% Construct the state S strcut
@@ -40,17 +40,30 @@ release(tracker);
 state.P = curr_keypts(tracked_indices, :);
 state.X = prev_state.X(tracked_indices, :);
 
+% plot matching for sanity check!
+% figure(2);
+% % false color
+% imgOverlay = imfuse(prev_frame, curr_frame);
+% create red-cyan image instead of the imfuse default
+% imgOverlay(:,:,1) = imgOverlay(:,:,2);
+% imgOverlay(:,:,2) = imgOverlay(:,:,3);
+% imshow(imgOverlay);
+% hold on;
+% plot([state.P(:, 1)'; prev_state.P(tracked_indices, 1)'], [state.P(:, 2)'; prev_state.P(tracked_indices, 2)'], '-y');
+% plot(prev_state.P(tracked_indices, 1), prev_state.P(tracked_indices, 2), '+r', 'LineWidth', 2);
+% plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
+
 %% Step 2: Camera Pose Estimation (PnP)
-[R_2C_W, t_2C_W, p3p_inlier_mask] = cameraPoseEstimation(state.P, state.X, K, process_params.p3p);
-pose = [R_2C_W, t_2C_W];
+% rotation and translation from camera to world frame
+[R_C2_W, t_C2_W, p3p_inlier_mask] = cameraPoseEstimation(state.P, state.X, K, process_params.p3p);
+T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
 
 % Remove landmarks that lie behind the camera
-if (numel(pose) > 0)
-    points_3D = R_2C_W' * state.X' - R_2C_W' * t_2C_W;
-    state.X = state.X(points_3D(3, :) > 0, :);
-    state.P = state.P(points_3D(3, :) > 0, :);
-end
+points_3D = R_C2_W' * state.X' - R_C2_W' * t_C2_W;
+state.X = state.X(points_3D(3, :) > 0, :);
+state.P = state.P(points_3D(3, :) > 0, :);
+    
 % Output: H_W_C
 % pose = [R_C_W', -R_C_W'*t_C_W]; % convert from R_C_W to R_W_C
 
@@ -64,7 +77,7 @@ if ~isempty(prev_state.C)
     release(tracker)
     
     % copy candidate keypoints and poses into the current state 
-    state.F = prev_state.C(tracked_indices,:);
+    state.F = prev_state.C(tracked_indices, :);
     state.T = prev_state.T(tracked_indices, :);
     state.C = pts_C(tracked_indices, :);
     
@@ -82,11 +95,14 @@ if ~isempty(prev_state.C)
         
         % iterate over each candidate keypoint
         for i = 1:N
+            T_C1_W = reshape(state.T(i, :), [3, 4]);
+            % compute transformation from world to camera
+            T_W_C1 = [T_C1_W(:, 1:3)', - T_C1_W(:, 1:3)' * T_C1_W(:, 4)];
+            T_W_C2 = [T_C2_W(:, 1:3)', - T_C2_W(:, 1:3)' * T_C2_W(:, 4)];
+            
             % compute projection matrices
-            T_1C_W = reshape(state.T(i, :), [3, 4]);
-            T_2C_W = [R_2C_W, t_2C_W];
-            M1 = K * T_1C_W;
-            M2  = K * T_2C_W;
+            M1 = K * T_W_C1;
+            M2  = K * T_W_C2;
             
             % convert to homogenous coordinates
             keypt_C1 = [state.F(i, :)'; 1];
@@ -97,19 +113,19 @@ if ~isempty(prev_state.C)
             
             % compute location of landmark in current and first
             % observations
-            X_2C = T_2C_W(:, 1:3)' * X_W(1:3, :) - T_2C_W(:, 1:3)' * T_2C_W(:, 4);
-            X_1C = T_1C_W(:, 1:3)' * X_W(1:3, :) - T_1C_W(:, 1:3)' * T_1C_W(:, 4);
+            X_C2 = T_W_C2(:, 1:3) * X_W(1:3, :) + T_W_C2(:, 4);
+            X_C1 = T_W_C1(:, 1:3) * X_W(1:3, :) + T_W_C1(:, 4);
 
             % check if 3D point is infront of the camera 
-            if X_2C(3) > 0                
+            if X_C2(3) > 0                
                 % compute angle between bearing vectors to landmark
-                alpha = atan2(norm(cross(X_1C, X_2C)), ...
-                              dot(X_1C, X_2C));
+                alpha = atan2(norm(cross(X_C1, X_C2)), ...
+                              dot(X_C1, X_C2));
                           
                 % add triangulated landmark to state if angle is above thrshold
                 if abs(alpha) >= process_params.landmarks.bearing_threshold
                     state.X = [state.X; X_W(1:3, :)'];
-                    state.P = [state.P; keypt_C2(1:2)'];
+                    state.P = [state.P; keypt_C2(1:2, :)'];
                     bookkeeping(i) = true;
                 end
             else
@@ -127,38 +143,40 @@ end
 %% Step 4: Add new candidate points 
 
 % Step 4a. Compute features using Harris corners detection (similar to bootstrapping)
-I1_keypoints = computeHarrisFeatures(prev_frame, process_params.harris);
+prev_keypoints = computeHarrisFeatures(prev_frame, process_params.harris);
 
 % Step 4b. Match features using KLT tracking
 tracker = vision.PointTracker('NumPyramidLevels', process_params.KLT.num_pyramid_levels, ...
                               'MaxBidirectionalError', process_params.KLT.max_bidirectional_error, ...
                               'BlockSize', process_params.KLT.block_size, ...
                               'MaxIterations', process_params.KLT.max_iterations);
-initialize(tracker, I1_keypoints, prev_frame);
-[I2_keypoints, pts_matched] = tracker(curr_frame);
+initialize(tracker, prev_keypoints, prev_frame);
+[curr_keypoints, pts_matched] = tracker(curr_frame);
 release(tracker);
 
-I1_matched_kpts = I1_keypoints(pts_matched, :);
-I2_matched_kpts = I2_keypoints(pts_matched, :);
+prev_matched_kpts = prev_keypoints(pts_matched, :);
+curr_matched_kpts = curr_keypoints(pts_matched, :);
 
 % Step 4c. Check if candidate points already exist in state.P
-M = size(I2_matched_kpts, 1);
+M = size(curr_matched_kpts, 1);
 bookkeeping = false(M, 1);
-dist_candidate_keypts = pdist2(I2_matched_kpts, state.P);
+dist_candidate_keypts = pdist2(curr_matched_kpts, state.P);
 
-for i=1:M
+for i = 1:M
     if all(dist_candidate_keypts(i, :) > process_params.new_candidate_tolerance)
         bookkeeping(i) = true;
     end
 end
 
 % Step 4d: Update state with candidates
-state.C = [state.C; I2_matched_kpts(bookkeeping, :)];
-state.F = [state.F; I1_matched_kpts(bookkeeping, :)];
-state.T = [state.T; repmat(reshape(pose, [1, 12]), [nnz(bookkeeping), 1]) ];
+state.C = [state.C; curr_matched_kpts(bookkeeping, :)];
+state.F = [state.F; prev_matched_kpts(bookkeeping, :)];
+state.T = [state.T; repmat(reshape(T_C2_W, [1, 12]), [nnz(bookkeeping), 1]) ];
 
 % status display
-fprintf('\nNew candidates: %d, Remaining after removing duplicates: %d , Total keypoints: %d , Total candidates: %d\n',...
-        M, nnz(bookkeeping), length(state.P), length(state.C));
+fprintf('\n----------- Summary -----------');
+fprintf('\n[Previous] Total keypoints: %d, Total candidates: %d', length(prev_state.P), length(prev_state.C));
+fprintf('\n[Current] Total keypoints: %d, Total candidates: %d', length(state.P), length(state.C));
+fprintf('\n-------------------------------\n');
 
 end

@@ -9,6 +9,9 @@ function plotOverview(curr_image, curr_state, prev_state, R_C_W, t_C_W, trajecto
 %   - t_C_W(3, 1): vector to represent translation from camera to world
 %   - trajectory(3, N): matrix storing entire estimated trajectory poses
 
+figure(1);
+clf('reset');
+
 %% Show image with keypoints tracking
 subplot(2,2,[1 2]);
 imshow(curr_image);
@@ -33,7 +36,7 @@ landmarks = curr_state.X';
 scatter3(landmarks(1, :), landmarks(2, :), landmarks(3, :), 5, 'k');
 set(gcf, 'GraphicsSmoothing', 'on');
 
-% plot pose
+% plot trajectory
 if (numel(R_C_W) > 0)
     plotCoordinateFrame(R_C_W', -R_C_W'*t_C_W, 2); % convert from R_C_W to R_W_C
     view(0,0);
