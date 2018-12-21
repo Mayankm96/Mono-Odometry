@@ -26,23 +26,21 @@ vo_params.bootstrap.harris.num_keypoints = 1000;
 vo_params.bootstrap.harris.nonmaximum_supression_radius = 10;
 
 % For KLT tracking 
-vo_params.bootstrap.KLT.num_pyramid_levels = 3;
+vo_params.bootstrap.KLT.num_pyramid_levels = 4;
 vo_params.bootstrap.KLT.max_bidirectional_error = 1;
-vo_params.bootstrap.KLT.block_size = [15 15];
-vo_params.bootstrap.KLT.max_iterations = 60;
+vo_params.bootstrap.KLT.block_size = [21 21];
+vo_params.bootstrap.KLT.max_iterations = 30;
 
 % For RANSAC
-vo_params.bootstrap.RANSAC.num_iterations = 100;
-vo_params.bootstrap.RANSAC.num_sampling_points = 12;
-vo_params.bootstrap.RANSAC.min_inlier_points = 6;
-vo_params.bootstrap.RANSAC.pixel_tolerance = 5;
+vo_params.bootstrap.RANSAC.num_iterations = 500;
+vo_params.bootstrap.RANSAC.pixel_tolerance = 10;
 
 %% [ProcessFrame] 
 % For KLT tracker
 % See: https://ch.mathworks.com/help/vision/ref/vision.pointtracker-system-object.html
 vo_params.process.KLT.num_pyramid_levels = 3;
-vo_params.process.KLT.max_bidirectional_error = inf;
-vo_params.process.KLT.block_size = [31 31];
+vo_params.process.KLT.max_bidirectional_error = 1;
+vo_params.process.KLT.block_size = [15 15];
 vo_params.process.KLT.max_iterations = 30;
 
 % For P3P algorithm

@@ -3,7 +3,7 @@ function [R_C_W, t_C_W, best_inlier_mask] = cameraPoseEstimation(keypoints, land
 %
 % INPUT:
 %   - keypoints (M, 2): keypoints in image coordinates [u, v]
-%   - landmarks (M, 3): corresponding 3D landmarks 
+%   - landmarks (M, 3): corresponding 3D landmarks in world frame
 %   - K (3, 3): Intrisic camera matrix
 %   - p3p_params (struct): parameters for P3P algorithm with RANSAC
 %
