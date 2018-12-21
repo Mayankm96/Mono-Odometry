@@ -15,13 +15,7 @@ function [landmarks, I2_matched_kpts] = bootstrap(I2, I1, bootstrap_params, K)
 % NOTE: output points are in image's [u, v] notation
 
 %% Step 1. Compute features using Harris corners detection
-% compute the harris score and find the keypoints for prev_img
-I1_harris_score = computeHarrisScores(I1, bootstrap_params.harris.patch_size, bootstrap_params.harris.kappa);
-I1_keypoints = selectKeypoints(I1_harris_score, bootstrap_params.harris.num_keypoints, ...
-                                bootstrap_params.harris.nonmaximum_supression_radius);
-
-% convert pixel locations from [row, col] into [u, v]
-I1_keypoints = fliplr(I1_keypoints);
+I1_keypoints = computeHarrisFeatures(I1, bootstrap_params.harris);
 
 %% Step 2. Match features using KLT tracking
 tracker = vision.PointTracker('NumPyramidLevels', bootstrap_params.KLT.num_pyramid_levels, ...
@@ -32,14 +26,14 @@ initialize(tracker, I1_keypoints, I1);
 [I2_keypoints, pts_matched] = tracker(I2);
 release(tracker);
 
-I1_matched_kps = I1_keypoints(pts_matched, :);
+I1_matched_kpts = I1_keypoints(pts_matched, :);
 I2_matched_kpts = I2_keypoints(pts_matched, :);
 
 %% Step 3. Apply RANSAC to avoid inital points on dynamic objects
 % Number of points matched 
-M = size(I1_matched_kps, 1);
+M = size(I1_matched_kpts, 1);
 % convert coordinates into homogenised system [u v] to [u v 1]
-I1_matched_kps = [I1_matched_kps, ones(M, 1)];
+I1_matched_kpts = [I1_matched_kpts, ones(M, 1)];
 I2_matched_kpts = [I2_matched_kpts, ones(M, 1)];
 
 % parameters to perform RANSAC
@@ -55,7 +49,7 @@ max_num_inliers = 0;
 % using RANSAC to find best R & T
 for iter = 1: num_iterations
     % sample data from keypoints detected in frame 1 and 2
-    [I1_kpts_sampled, idx] = datasample(I1_matched_kps, num_sample_points, 'Replace', false);
+    [I1_kpts_sampled, idx] = datasample(I1_matched_kpts, num_sample_points, 'Replace', false);
     I2_kpts_sampled = I2_matched_kpts(idx, :);
     
     % compute Essential Matrix and decompose it to obtain relative pose of 
@@ -69,10 +63,10 @@ for iter = 1: num_iterations
     M2 = K * [R_21, t_21];
     
     % triangulate matched points to get 3D landmarks relative to cam1 
-    X_c1 = linearTriangulation(I1_matched_kps', I2_matched_kpts', M1, M2);
+    X_C1 = linearTriangulation(I1_matched_kpts', I2_matched_kpts', M1, M2);
     
     % compute reprojection error for landmarks in cam2
-    pts2 = M2 * X_c1;
+    pts2 = M2 * X_C1;
     pts2 = bsxfun (@rdivide, pts2, pts2(3,:));
     errors = sqrt(sum((I2_matched_kpts' - pts2).^2, 1));
     
@@ -87,31 +81,31 @@ for iter = 1: num_iterations
 end
 
 % select the keypoints with most inliers 
-I1_matched_kps = I1_matched_kps(best_inlier_mask, :);
+I1_matched_kpts = I1_matched_kpts(best_inlier_mask, :);
 I2_matched_kpts = I2_matched_kpts(best_inlier_mask, :);
 
 %% Step 4. Triangulate filtered features to obtain initial 3D landmarks
 
 % compute Essential Matrix and decompose it to obtain relative pose of 
 % cam2 (I2) with respect to cam1 (I1)
-E = estimateEssentialMatrix(I1_matched_kps', I2_matched_kpts', K, K);
+E = estimateEssentialMatrix(I1_matched_kpts', I2_matched_kpts', K, K);
 [Rots, u3] = decomposeEssentialMatrix(E);
-[R_21, t_21] = disambiguateRelativePose(Rots, u3, I1_matched_kps', I2_matched_kpts', K, K);
+[R_21, t_21] = disambiguateRelativePose(Rots, u3, I1_matched_kpts', I2_matched_kpts', K, K);
 
 % compute the projection matrices for two camera poses 1 and 2
 M1 = K * eye(3,4);
 M2 = K * [R_21, t_21];
 
 % triangulate matched points to get 3D landmarks relative to cam1 
-X_c1 = linearTriangulation(I1_matched_kps',I2_matched_kpts', M1, M2);
+X_C1 = linearTriangulation(I1_matched_kpts',I2_matched_kpts', M1, M2);
 
 % remove landmarks that are behind the camera
-front_landmarks =  find(X_c1(3,:) > 0);
-X_c1 = X_c1(1:3, front_landmarks);
+front_landmarks =  find(X_C1(3,:) > 0);
+X_C1 = X_C1(1:3, front_landmarks);
 I2_matched_kpts = I2_matched_kpts(front_landmarks, :);
 
 %% convert computed landmarks and keypoints into desired shapes
-landmarks = X_c1';
+landmarks = X_C1';
 I2_matched_kpts = I2_matched_kpts(:, 1:2);
 
 end

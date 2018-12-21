@@ -1,6 +1,7 @@
-clc
-clear
-close all
+clc;
+clear all;
+close all;
+
 %% Execute the configuration file to read parameters for data paths
 addpath(genpath(cd)); % load all functions
 configFile; % load parameters
@@ -50,7 +51,7 @@ end
 
 %% Bootstrap
 % need to set bootstrap_frames
-fprintf('\n\nWaiting for Bootstrapping ...');
+fprintf('\nWaiting for Bootstrapping ...');
 bootstrap_frames = [0, 2];
 if ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
@@ -110,7 +111,7 @@ for i = start_frame:last_frame
     end
     
     % process the input frame
-    [state, pose, p3p_inlier_mask, klt_tracked_indices] = processFrame(image, prev_image, prev_state, K, vo_params.process);
+    [state, pose, num_p3p_inliers] = processFrame(image, prev_image, prev_state, K, vo_params.process);
     if (~isempty(pose))
         R_C_W = pose(:,1:3);
         t_C_W = pose(:,4);
@@ -119,13 +120,13 @@ for i = start_frame:last_frame
     % Check camera pose
     if (numel(pose) > 0)
         trajectory = [trajectory, -R_C_W'*t_C_W]; % append the trajectory
-        disp(['Frame ' num2str(i) ' localized with ' num2str(nnz(p3p_inlier_mask)) ' inliers!']);
+        disp(['Frame ' num2str(i) ' localized with ' num2str(num_p3p_inliers) ' inliers!']);
     else
         warning(['Frame ' num2str(i) ' failed tracking!']);
     end
     
     % plot the result
-    plotOverview(image, state, prev_state, klt_tracked_indices, R_C_W, t_C_W, trajectory);
+    plotOverview(image, state, prev_state, R_C_W, t_C_W, trajectory);
     pause(0.001);
     
     % update the state and image for next iteration

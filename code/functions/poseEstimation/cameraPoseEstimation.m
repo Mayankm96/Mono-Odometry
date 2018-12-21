@@ -1,14 +1,21 @@
-function [R_C_W, t_C_W, best_inlier_mask] = cameraPoseEstimation(keypoints, landmarks, K, process_params)
+function [R_C_W, t_C_W, best_inlier_mask] = cameraPoseEstimation(keypoints, landmarks, K, p3p_params)
 %%CAMERAPOSEESTIMATION Estimate the camera pose using P3P Algorithm
 %
 % INPUT:
 %   - keypoints (M, 2): keypoints in image coordinates [u, v]
 %   - landmarks (M, 3): corresponding 3D landmarks 
+%   - K (3, 3): Intrisic camera matrix
+%   - p3p_params (struct): parameters for P3P algorithm with RANSAC
+%
+% OUTPUT:
+%   - R_C_W (3, 3): rotation matrix from cam to the world frame
+%   - t_C_W (3, 1): translation vector from cam to world frame
+%   - best_inlier_mask (M, 1): 
 
 % Define parameters for algorithm
-num_iterations = process_params.p3p.num_iterations;
-pixel_tolerance = process_params.p3p.pixel_tolerance;
-min_inlier_count = process_params.p3p.min_inlier_count;
+num_iterations = p3p_params.num_iterations;
+pixel_tolerance = p3p_params.pixel_tolerance;
+min_inlier_count = p3p_params.min_inlier_count;
 
 % In P3P: 3 points required
 num_sample_points = 3;

@@ -19,19 +19,19 @@ data_params.show_gt_flag = 1;
 data_params.use_multithreads = 0;                % 0: disabled, 1: enabled
 
 %% [Bootstrap]
-% harris keypoint selector
+% For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
 vo_params.bootstrap.harris.kappa = 0.08;
 vo_params.bootstrap.harris.num_keypoints = 1000;
 vo_params.bootstrap.harris.nonmaximum_supression_radius = 10;
 
-% KLT tracking 
+% For KLT tracking 
 vo_params.bootstrap.KLT.num_pyramid_levels = 3;
 vo_params.bootstrap.KLT.max_bidirectional_error = 1;
 vo_params.bootstrap.KLT.block_size = [15 15];
 vo_params.bootstrap.KLT.max_iterations = 60;
 
-% using RANSAC parameters
+% For RANSAC
 vo_params.bootstrap.RANSAC.num_iterations = 500;
 vo_params.bootstrap.RANSAC.num_sampling_points = 12;
 vo_params.bootstrap.RANSAC.min_inlier_points = 6;
@@ -49,3 +49,19 @@ vo_params.process.KLT.max_iterations = 30;
 vo_params.process.p3p.num_iterations = 1000;
 vo_params.process.p3p.pixel_tolerance = 10;
 vo_params.process.p3p.min_inlier_count = 40;
+
+% For adding new landmarks
+vo_params.process.landmarks.bearing_threshold = 5 * pi/180;
+vo_params.process.new_candidate_tolerance = 10;
+
+% For harris keypoint selector
+vo_params.process.harris.patch_size = 9;
+vo_params.process.harris.kappa = 0.08;
+vo_params.process.harris.num_keypoints = 1000;
+vo_params.process.harris.nonmaximum_supression_radius = 10;
+
+% KLT tracking 
+vo_params.process.KLT.num_pyramid_levels = 3;
+vo_params.process.KLT.max_bidirectional_error = 1;
+vo_params.process.KLT.block_size = [15 15];
+vo_params.process.KLT.max_iterations = 60;
