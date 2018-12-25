@@ -72,6 +72,8 @@ pose = [R_C2_W', - R_C2_W' * t_C2_W];
 points_3D = T_C2_W(:, 1:3) * state.X' + T_C2_W(:, 4);
 state.X = state.X(points_3D(3, :) > 0, :);
 state.P = state.P(points_3D(3, :) > 0, :);
+% state.X = state.X(p3p_inlier_mask==true, :);
+% state.P = state.P(p3p_inlier_mask==true, :);
 
 %% Step 3: Triangulating new landmarks from candidate keypoints in previous state
 
@@ -127,7 +129,7 @@ if ~isempty(prev_state.C)
                               dot(X_C1, X_C2));
                           
                 % add triangulated landmark to state if angle is above thrshold
-                if abs(alpha) >= process_params.landmarks.bearing_threshold
+                if abs(alpha) >= process_params.landmarks.bearing_min && abs(alpha) <= process_params.landmarks.bearing_max
                     state.X = [state.X; X_W(1:3, :)'];
                     state.P = [state.P; keypt_C2(1:2, :)'];
                     bookkeeping(i) = false;
