@@ -41,18 +41,18 @@ release(tracker);
 state.P = curr_keypts(tracked_state_keypts, :);
 state.X = prev_state.X(tracked_state_keypts, :);
 
-% plot matching for sanity check!
-subplot(2, 1, 1)
-% false color
-imgOverlay = imfuse(prev_frame, curr_frame);
-% create red-cyan image instead of the imfuse default
-imgOverlay(:,:,1) = imgOverlay(:,:,2);
-imgOverlay(:,:,2) = imgOverlay(:,:,3);
-imshow(imgOverlay);
-hold on;
-plot([state.P(:, 1)'; prev_state.P(tracked_state_keypts, 1)'], [state.P(:, 2)'; prev_state.P(tracked_state_keypts, 2)'], '-y');
-plot(prev_state.P(tracked_state_keypts, 1), prev_state.P(tracked_state_keypts, 2), '+r', 'LineWidth', 2);
-plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
+% % plot matching for sanity check!
+% subplot(2, 1, 1)
+% % false color
+% imgOverlay = imfuse(prev_frame, curr_frame);
+% % create red-cyan image instead of the imfuse default
+% imgOverlay(:,:,1) = imgOverlay(:,:,2);
+% imgOverlay(:,:,2) = imgOverlay(:,:,3);
+% imshow(imgOverlay);
+% hold on;
+% plot([state.P(:, 1)'; prev_state.P(tracked_state_keypts, 1)'], [state.P(:, 2)'; prev_state.P(tracked_state_keypts, 2)'], '-y');
+% plot(prev_state.P(tracked_state_keypts, 1), prev_state.P(tracked_state_keypts, 2), '+r', 'LineWidth', 2);
+% plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
 
 %% Step 2: Camera Pose Estimation (PnP)
 % rotation and translation from camera to world frame
@@ -60,10 +60,10 @@ plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
 T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
 
-subplot(2, 1, 2)
-imshow(curr_frame)
-hold on
-plot(state.P(p3p_inlier_mask, 1), state.P(p3p_inlier_mask, 2), '+g', 'LineWidth', 2);
+% subplot(2, 1, 2)
+% imshow(curr_frame)
+% hold on
+% plot(state.P(p3p_inlier_mask, 1), state.P(p3p_inlier_mask, 2), '+g', 'LineWidth', 2);
 
 % camera pose with respect to world 
 pose = [R_C2_W', - R_C2_W' * t_C2_W];

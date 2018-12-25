@@ -125,7 +125,7 @@ for i = start_frame:last_frame
     end
     
     % plot the result
-    %plotOverview(curr_image, state, prev_state, R_W_C, t_W_C, trajectory, tracked_state_keypts);
+    plotOverview(curr_image, state, prev_state, R_W_C, t_W_C, trajectory, tracked_state_keypts);
     pause(0.001);
     
     % update the state and image for next iteration
