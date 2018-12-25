@@ -6,8 +6,8 @@
 ds = 0; % 0: KITTI, 1: Malaga, 2: parking
 % Path to the directories containing images
 % For KITTI dataset
-% data_params.kitti_path = 'C:\Users\haoch\Documents\DataSet\kitti';
-data_params.kitti_path = '../data/kitti';
+ data_params.kitti_path = 'C:\Users\haoch\Documents\DataSet\kitti';
+%data_params.kitti_path = '../data/kitti';
 % For Malaga dataset
 data_params.malaga_path = '../data/malaga-urban-dataset-extract-07';
 % For Parking dataset
@@ -44,9 +44,9 @@ vo_params.process.KLT.block_size = [15 15];
 vo_params.process.KLT.max_iterations = 30;
 
 % For P3P algorithm
-vo_params.process.p3p.num_iterations = 1600;
+vo_params.process.p3p.num_iterations = 200;
 vo_params.process.p3p.pixel_tolerance = 10;
-vo_params.process.p3p.min_inlier_count = 30;
+vo_params.process.p3p.min_inlier_count = 20;
 
 % For adding new landmarks
 vo_params.process.landmarks.bearing_threshold = 5 * pi/180;

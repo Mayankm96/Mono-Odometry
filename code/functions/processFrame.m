@@ -97,7 +97,7 @@ if ~isempty(prev_state.C)
 
         % create array for bookeeping candidates added to landmarks and
         % candidate points which are no longer visible to current camera
-        bookkeeping = false(N, 1);
+        bookkeeping = true(N, 1);
         
         % iterate over each candidate keypoint
         for i = 1:N
@@ -130,17 +130,15 @@ if ~isempty(prev_state.C)
                 if abs(alpha) >= process_params.landmarks.bearing_threshold
                     state.X = [state.X; X_W(1:3, :)'];
                     state.P = [state.P; keypt_C2(1:2, :)'];
-                    bookkeeping(i) = true;
+                    bookkeeping(i) = false;
                 end
-            else
-                bookkeeping(i) = true;
             end
         end
         
         % remove candidate points which have been added
-        state.F = state.F(~bookkeeping, :);
-        state.T = state.T(~bookkeeping, :);
-        state.C = state.C(~bookkeeping, :);
+        state.F = state.F(bookkeeping==true, :);
+        state.T = state.T(bookkeeping==true, :);
+        state.C = state.C(bookkeeping==true, :);
     end
 end
 
@@ -171,8 +169,8 @@ for i = 1:M
 end
 
 % Step 4d: Update state with newly detected candidates
-state.C = [state.C; C_new_kpts(bookkeeping, :)];
-state.F = [state.F; C_new_kpts(bookkeeping, :)];
+state.C = [state.C; C_new_kpts(bookkeeping==true, :)];
+state.F = [state.F; C_new_kpts(bookkeeping==true, :)];
 state.T = [state.T; repmat(reshape(T_C2_W, [1, 12]), [nnz(bookkeeping), 1]) ];
 
 % status display
