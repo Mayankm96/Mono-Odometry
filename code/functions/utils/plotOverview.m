@@ -32,7 +32,7 @@ axis([min(trajectory(1,:))-10, max(trajectory(1,:))+10, ...
   
 % convert landmarks array from M x 3 to 3 x M and plot them
 landmarks = curr_state.X';
-scatter3(landmarks(1, :), landmarks(2, :), landmarks(3, :), 5, 'k');
+% scatter3(landmarks(1, :), landmarks(2, :), landmarks(3, :), 5, 'k');
 set(gcf, 'GraphicsSmoothing', 'on');
 
 % plot trajectory

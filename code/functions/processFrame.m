@@ -42,17 +42,17 @@ state.P = curr_keypts(tracked_state_keypts, :);
 state.X = prev_state.X(tracked_state_keypts, :);
 
 % plot matching for sanity check!
-% figure(2);
-% % false color
-% imgOverlay = imfuse(prev_frame, curr_frame);
+subplot(2, 1, 1)
+% false color
+imgOverlay = imfuse(prev_frame, curr_frame);
 % create red-cyan image instead of the imfuse default
-% imgOverlay(:,:,1) = imgOverlay(:,:,2);
-% imgOverlay(:,:,2) = imgOverlay(:,:,3);
-% imshow(imgOverlay);
-% hold on;
-% plot([state.P(:, 1)'; prev_state.P(tracked_indices, 1)'], [state.P(:, 2)'; prev_state.P(tracked_indices, 2)'], '-y');
-% plot(prev_state.P(tracked_indices, 1), prev_state.P(tracked_indices, 2), '+r', 'LineWidth', 2);
-% plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
+imgOverlay(:,:,1) = imgOverlay(:,:,2);
+imgOverlay(:,:,2) = imgOverlay(:,:,3);
+imshow(imgOverlay);
+hold on;
+plot([state.P(:, 1)'; prev_state.P(tracked_state_keypts, 1)'], [state.P(:, 2)'; prev_state.P(tracked_state_keypts, 2)'], '-y');
+plot(prev_state.P(tracked_state_keypts, 1), prev_state.P(tracked_state_keypts, 2), '+r', 'LineWidth', 2);
+plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
 
 %% Step 2: Camera Pose Estimation (PnP)
 % rotation and translation from camera to world frame
@@ -60,11 +60,16 @@ state.X = prev_state.X(tracked_state_keypts, :);
 T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
 
+subplot(2, 1, 2)
+imshow(curr_frame)
+hold on
+plot(state.P(p3p_inlier_mask, 1), state.P(p3p_inlier_mask, 2), '+g', 'LineWidth', 2);
+
 % camera pose with respect to world 
 pose = [R_C2_W', - R_C2_W' * t_C2_W];
 
 % Remove landmarks that lie behind the camera
-points_3D = R_C2_W * state.X' + t_C2_W;
+points_3D = T_C2_W(:, 1:3) * state.X' + T_C2_W(:, 4);
 state.X = state.X(points_3D(3, :) > 0, :);
 state.P = state.P(points_3D(3, :) > 0, :);
 
@@ -141,25 +146,23 @@ end
 
 %% Step 4: Add new candidate points 
 
-% Step 4a. Compute features using Harris corners detection (similar to bootstrapping)
-prev_keypoints = computeHarrisFeatures(prev_frame, process_params.harris);
+% Step 4a. Compute features using Harris corners detection 
+C_new_kpts = computeHarrisFeatures(curr_frame, process_params.harris);
+C_old_kpts = [state.P; state.C];
 
-% Step 4b. Match features using KLT tracking
-tracker = vision.PointTracker('NumPyramidLevels', process_params.KLT.num_pyramid_levels, ...
-                              'MaxBidirectionalError', process_params.KLT.max_bidirectional_error, ...
-                              'BlockSize', process_params.KLT.block_size, ...
-                              'MaxIterations', process_params.KLT.max_iterations);
-initialize(tracker, prev_keypoints, prev_frame);
-[curr_keypoints, pts_matched] = tracker(curr_frame);
-release(tracker);
+% Step 4b. Match features with pre-existing features to avoid duplication
+C_old_descriptors = describeKeypoints(curr_frame, C_old_kpts', process_params.harris.descriptor_radius);
+C_new_descriptors = describeKeypoints(curr_frame, C_new_kpts', process_params.harris.descriptor_radius);
+[~, C_new_matched_indices] = matchDescriptors(C_old_descriptors, C_new_descriptors, ...
+                            process_params.harris.match_lambda, false);
 
-prev_matched_kpts = prev_keypoints(pts_matched, :);
-curr_matched_kpts = curr_keypoints(pts_matched, :);
+% only consider those features that have not been matched
+C_new_kpts(C_new_matched_indices, :) = [];
 
 % Step 4c. Check if candidate points already exist in state.P
-M = size(curr_matched_kpts, 1);
+M = size(C_new_kpts, 1);
 bookkeeping = false(M, 1);
-dist_candidate_keypts = pdist2(curr_matched_kpts, state.P);
+dist_candidate_keypts = pdist2(C_new_kpts, C_old_kpts);
 
 for i = 1:M
     if all(dist_candidate_keypts(i, :) > process_params.new_candidate_tolerance)
@@ -167,9 +170,9 @@ for i = 1:M
     end
 end
 
-% Step 4d: Update state with candidates
-state.C = [state.C; curr_matched_kpts(bookkeeping, :)];
-state.F = [state.F; prev_matched_kpts(bookkeeping, :)];
+% Step 4d: Update state with newly detected candidates
+state.C = [state.C; C_new_kpts(bookkeeping, :)];
+state.F = [state.F; C_new_kpts(bookkeeping, :)];
 state.T = [state.T; repmat(reshape(T_C2_W, [1, 12]), [nnz(bookkeeping), 1]) ];
 
 % status display
@@ -178,4 +181,9 @@ fprintf('\n[Previous] Total keypoints: %d, Total candidates: %d', length(prev_st
 fprintf('\n[Current] Total keypoints: %d, Total candidates: %d', length(state.P), length(state.C));
 fprintf('\n-------------------------------\n');
 
+% subplot(2, 1, 2)
+% imshow(curr_frame)
+% hold on
+% plot(state.C(:, 1), state.C(:, 2), '+c', 'LineWidth', 2);
+% plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
 end

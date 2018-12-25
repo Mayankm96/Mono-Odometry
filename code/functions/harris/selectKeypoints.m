@@ -9,7 +9,7 @@ function keypts = selectKeypoints(scores, max_num, radius)
 %   - radius: radius of the searching block in non-maximum supression
 %
 % OUTPUT: 
-%   - keypts (M, 2): an array of detected keypoints and their location
+%   - keypts (M, 2): an array of detected keypoints in [row, col] notation
 
 keypts = zeros(max_num, 2);
 % pad the input array by r
@@ -28,4 +28,3 @@ for i = 1:max_num
 end
 
 end
-
