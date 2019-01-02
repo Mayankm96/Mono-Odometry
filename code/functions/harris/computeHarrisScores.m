@@ -11,10 +11,10 @@ function scores = computeHarrisScores(img, patch_size, kappa)
 % defining the sobel filters
 sobel_para = [-1 0 1];
 sobel_orth = [1 2 1];
-
 % perform convolution of the images with sobel filters
 Ix = conv2(sobel_orth', sobel_para, img, 'valid');
 Iy = conv2(sobel_para', sobel_orth, img, 'valid');
+
 Ixx = double(Ix .^ 2);
 Iyy = double(Iy .^ 2);
 Ixy = double(Ix .* Iy);

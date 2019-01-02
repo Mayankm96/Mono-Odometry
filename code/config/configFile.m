@@ -22,18 +22,18 @@ data_params.use_multithreads = 0;                % 0: disabled, 1: enabled
 % For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
 vo_params.bootstrap.harris.kappa = 0.08;
-vo_params.bootstrap.harris.num_keypoints = 1000;
+vo_params.bootstrap.harris.num_keypoints = 300;
 vo_params.bootstrap.harris.nonmaximum_supression_radius = 10;
 
 % For KLT tracking 
-vo_params.bootstrap.KLT.num_pyramid_levels = 4;
+vo_params.bootstrap.KLT.num_pyramid_levels = 3;
 vo_params.bootstrap.KLT.max_bidirectional_error = 1;
-vo_params.bootstrap.KLT.block_size = [21 21];
-vo_params.bootstrap.KLT.max_iterations = 30;
+vo_params.bootstrap.KLT.block_size = [19 19];
+vo_params.bootstrap.KLT.max_iterations = 60;
 
 % For RANSAC
-vo_params.bootstrap.RANSAC.num_iterations = 500;
-vo_params.bootstrap.RANSAC.pixel_tolerance = 10;
+vo_params.bootstrap.RANSAC.num_iterations = 50;
+vo_params.bootstrap.RANSAC.pixel_tolerance = 3;
 
 %% [ProcessFrame] 
 % For KLT tracker
@@ -45,13 +45,13 @@ vo_params.process.KLT.max_iterations = 30;
 
 % For P3P algorithm
 vo_params.process.p3p.num_iterations = 200;
-vo_params.process.p3p.pixel_tolerance = 8;
+vo_params.process.p3p.pixel_tolerance = 20;
 vo_params.process.p3p.min_inlier_count = 6;
 
 % For adding new landmarks
 vo_params.process.landmarks.bearing_min = 0.4 * pi/180;
 vo_params.process.landmarks.bearing_max = 3.5 * pi/180;
-vo_params.process.new_candidate_tolerance = 10;
+vo_params.process.new_candidate_tolerance = 8;
 
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
@@ -59,4 +59,4 @@ vo_params.process.harris.kappa = 0.08;
 vo_params.process.harris.num_keypoints = 700;
 vo_params.process.harris.nonmaximum_supression_radius = 8;
 vo_params.process.harris.descriptor_radius = 9;
-vo_params.process.harris.match_lambda = 4;
+vo_params.process.harris.match_lambda = 10;

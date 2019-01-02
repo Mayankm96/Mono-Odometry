@@ -52,7 +52,7 @@ end
 %% Bootstrap
 % need to set bootstrap_frames
 fprintf('\nWaiting for Bootstrapping ...');
-bootstrap_frames = [0, 2];
+bootstrap_frames = [80, 82];
 if ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrap_frames(1))]);
