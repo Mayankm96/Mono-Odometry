@@ -6,8 +6,8 @@
 ds = 0; % 0: KITTI, 1: Malaga, 2: parking
 % Path to the directories containing images
 % For KITTI dataset
- data_params.kitti_path = 'C:\Users\haoch\Documents\DataSet\kitti';
-%data_params.kitti_path = '../data/kitti';
+% data_params.kitti_path = 'C:\Users\haoch\Documents\DataSet\kitti';
+data_params.kitti_path = '../data/kitti';
 % For Malaga dataset
 data_params.malaga_path = '../data/malaga-urban-dataset-extract-07';
 % For Parking dataset

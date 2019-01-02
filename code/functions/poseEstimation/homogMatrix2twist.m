@@ -1,12 +1,11 @@
-function twist = HomogMatrix2twist(H)
-
-% HomogMatrix2twist Convert 4x4 homogeneous matrix to twist coordinates
+function twist = homogMatrix2twist(H)
+%%HOMOGMATRIX2TWIST Convert 4x4 homogeneous matrix to twist coordinates
 %
 % Input:
-% -H(4,4): Euclidean transformation matrix (rigid body motion)
+%   -H(4,4): Euclidean transformation matrix (rigid body motion)
 %
 % Output:
-% -twist(6,1): twist coordinates. Stack linear and angular parts [v;w]
+%   -twist(6,1): twist coordinates. Stack linear and angular parts [v;w]
 %
 % Observe that the same H might be represented by different twist vectors
 % Here, twist(4:6) is a rotation vector with norm in [0,pi]
@@ -21,5 +20,4 @@ v = se_matrix(1:3,4);
 w = Matrix2Cross(se_matrix(1:3,1:3));
 
 twist = [v; w];
-
 end
