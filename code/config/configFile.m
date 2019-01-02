@@ -49,14 +49,14 @@ vo_params.process.p3p.pixel_tolerance = 20;
 vo_params.process.p3p.min_inlier_count = 6;
 
 % For adding new landmarks
-vo_params.process.landmarks.bearing_min = 0.5 * pi/180;
-vo_params.process.landmarks.bearing_max = 3.0 * pi/180;
-vo_params.process.new_candidate_tolerance = 8;
+vo_params.process.landmarks.bearing_min = 0.4 * pi/180;
+vo_params.process.landmarks.bearing_max = 4.0 * pi/180;
+vo_params.process.new_candidate_tolerance = 6;
 
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
 vo_params.process.harris.kappa = 0.08;
-vo_params.process.harris.num_keypoints = 700;
+vo_params.process.harris.num_keypoints = 1000;
 vo_params.process.harris.nonmaximum_supression_radius = 8;
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;
