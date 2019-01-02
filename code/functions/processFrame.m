@@ -57,6 +57,13 @@ state.X = prev_state.X(tracked_state_keypts, :);
 %% Step 2: Camera Pose Estimation (PnP)
 % rotation and translation from camera to world frame
 [R_C2_W, t_C2_W, p3p_inlier_mask] = cameraPoseEstimation(state.P, state.X, K, process_params.p3p);
+
+state.X = state.X(p3p_inlier_mask==true,:);
+state.P = state.P(p3p_inlier_mask==true,:);
+
+% refine camera pose
+[R_C2_W, t_C2_W] = nonlinearOptimization(state.P, state.X, R_C2_W, t_C2_W, K);
+
 T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
 
@@ -72,8 +79,6 @@ pose = [R_C2_W', - R_C2_W' * t_C2_W];
 points_3D = T_C2_W(:, 1:3) * state.X' + T_C2_W(:, 4);
 state.X = state.X(points_3D(3, :) > 0, :);
 state.P = state.P(points_3D(3, :) > 0, :);
-% state.X = state.X(p3p_inlier_mask==true, :);
-% state.P = state.P(p3p_inlier_mask==true, :);
 
 %% Step 3: Triangulating new landmarks from candidate keypoints in previous state
 

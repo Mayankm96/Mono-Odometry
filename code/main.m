@@ -88,8 +88,13 @@ prev_state.F = [];
 prev_state.T = [];
 prev_image = img1;
 
-% 3xN matrix to record entire valid trajectory
-trajectory = zeros(3,1); 
+% 12xM matrix to record entire valid trajectory
+trajectory = [];
+
+% Cell to record landmarks from latest 20 states
+num_of_latest_states = 20;
+pointcloud{1, num_of_latest_states} = [];
+pointcloud_cell_index = 0;
 
 % frame to start continuous operation from 
 start_frame = bootstrap_frames(2) + 1;
@@ -115,20 +120,23 @@ for i = start_frame:last_frame
     
     % Check camera pose
     if (~isempty(pose))
-        R_W_C = pose(:,1:3);
-        t_W_C = pose(:,4);
-        % append to the trajectory
-        trajectory = [trajectory, t_W_C]; 
+        % append to the trajectory cell
+        trajectory = [reshape(pose, [12, 1]), trajectory]; 
         disp(['Frame ' num2str(i) ' localized with ' num2str(num_p3p_inliers) ' inliers!']);    
+        % Save landmarks from latest 20 states 
+        pointcloud{pointcloud_cell_index+1} = state.X;
+        pointcloud_cell_index = mod( (pointcloud_cell_index+1), num_of_latest_states);
     else
         warning(['Frame ' num2str(i) ' failed tracking!']);
     end
     
     % plot the result
-    plotOverview(curr_image, state, prev_state, R_W_C, t_W_C, trajectory, tracked_state_keypts);
-    pause(0.001);
+    plotOverview(curr_image, state, prev_state, tracked_state_keypts, trajectory, pointcloud, num_of_latest_states);
     
     % update the state and image for next iteration
     prev_state = state;
     prev_image = curr_image;
+    
+    % Loop safety (unnecessary)
+    pause(0.001);
 end
