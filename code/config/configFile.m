@@ -18,6 +18,11 @@ data_params.show_gt_flag = 1;
 % !! TO-DO: fix parfor and for loops for this functionality!
 data_params.use_multithreads = 0;                % 0: disabled, 1: enabled
 
+data_params.initial_frame = 1;
+%% Parameters for Plotting
+plot_params.plot_on_runtime = true;
+plot_params.num_of_latest_states = 20;
+
 %% [Bootstrap]
 % For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
@@ -49,14 +54,14 @@ vo_params.process.p3p.pixel_tolerance = 20;
 vo_params.process.p3p.min_inlier_count = 6;
 
 % For adding new landmarks
-vo_params.process.landmarks.bearing_min = 0.4 * pi/180;
-vo_params.process.landmarks.bearing_max = 4.0 * pi/180;
+vo_params.process.landmarks.bearing_min = 0.3 * pi/180;
+vo_params.process.landmarks.bearing_max = 5.0 * pi/180;
 vo_params.process.new_candidate_tolerance = 6;
 
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
 vo_params.process.harris.kappa = 0.08;
-vo_params.process.harris.num_keypoints = 1000;
+vo_params.process.harris.num_keypoints = 1200;
 vo_params.process.harris.nonmaximum_supression_radius = 8;
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;

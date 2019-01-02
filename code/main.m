@@ -52,7 +52,7 @@ end
 %% Bootstrap
 % need to set bootstrap_frames
 fprintf('\nWaiting for Bootstrapping ...');
-bootstrap_frames = [80, 82];
+bootstrap_frames = [data_params.initial_frame, data_params.initial_frame+2];
 if ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrap_frames(1))]);
@@ -91,9 +91,8 @@ prev_image = img1;
 % 12xM matrix to record entire valid trajectory
 trajectory = [];
 
-% Cell to record landmarks from latest 20 states
-num_of_latest_states = 20;
-pointcloud{1, num_of_latest_states} = [];
+% Cell to record landmarks from latest specified states
+pointcloud{1, plot_params.num_of_latest_states} = [];
 pointcloud_cell_index = 0;
 
 % frame to start continuous operation from 
@@ -125,14 +124,15 @@ for i = start_frame:last_frame
         disp(['Frame ' num2str(i) ' localized with ' num2str(num_p3p_inliers) ' inliers!']);    
         % Save landmarks from latest 20 states 
         pointcloud{pointcloud_cell_index+1} = state.X;
-        pointcloud_cell_index = mod( (pointcloud_cell_index+1), num_of_latest_states);
+        pointcloud_cell_index = mod( (pointcloud_cell_index+1), plot_params.num_of_latest_states);
     else
         warning(['Frame ' num2str(i) ' failed tracking!']);
     end
     
-    % plot the result
-    plotOverview(curr_image, state, prev_state, tracked_state_keypts, trajectory, pointcloud, num_of_latest_states);
-    
+    if plot_params.plot_on_runtime
+        % plot the result
+        plotOverview(curr_image, state, prev_state, tracked_state_keypts, trajectory, pointcloud, plot_params.num_of_latest_states);
+    end
     % update the state and image for next iteration
     prev_state = state;
     prev_image = curr_image;
