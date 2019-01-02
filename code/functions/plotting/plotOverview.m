@@ -9,10 +9,10 @@ function plotOverview(curr_image, curr_state, prev_state, tracked_state_keypts, 
 %   - t_W_C(3, 1): translation of camera wrt world frame
 %   - trajectory(3, N): matrix storing entire estimated trajectory poses
 %   - tracked_state_keypts(K, 1): indices of tracked keypoints in state
-figure(1);
 
 %% Show image with keypoints tracking
 sp_1 = subplot(2,2,[1 2]);
+cla(sp_1);
 imshow(curr_image);
 hold on;      
 % convert matrix shape from M x 2 to 2 x M

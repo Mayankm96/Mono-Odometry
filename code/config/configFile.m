@@ -56,7 +56,7 @@ vo_params.process.new_candidate_tolerance = 6;
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
 vo_params.process.harris.kappa = 0.08;
-vo_params.process.harris.num_keypoints = 500;
+vo_params.process.harris.num_keypoints = 1000;
 vo_params.process.harris.nonmaximum_supression_radius = 8;
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;
