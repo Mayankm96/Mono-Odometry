@@ -53,7 +53,7 @@ for i = 1:num_frames_parsed
     pose = reshape(trajectory(:,i), [3,4]);
     R_W_C = pose(:,1:3);
     t_W_C = pose(:,4);
-    plotCoordinateFrame(R_W_C, t_W_C, 2);
+    plotCoordinateFrame(R_W_C, t_W_C, 1);
 end
 
 % set axis limit for cleaner plots
@@ -64,6 +64,8 @@ axis([t_W_C(1)-10, t_W_C(1)+10, ...
 title(['Landmarks & Coordinates of latest ', num2str(num_of_latest_states),' frames']);  
 set(gcf, 'GraphicsSmoothing', 'on');  
 view(0,0);
+xlabel('x (in meters)'); ylabel('y (in meters)'); zlabel('z (in meters)');
+
 
 %% Plot number of tracked landmarks
 sp_4 = subplot(2, 3, 4);
@@ -86,10 +88,17 @@ xlim([-num_of_latest_states + 1, 0])
 grid on;
 
 %% Plot full trajectory
-sp_3 = subplot(2, 3, 5); 
+sp_3 = subplot(2, 3, 5);
+hold on; grid on; 
 plot(trajectory(10, 1), trajectory(12, 1),'b.-')
 title('Full Trajectory');
-xlabel('x'); ylabel('z');
-hold on; grid on; axis equal;      
+xlabel('x (in meters)'); ylabel('z (in meters)');
+% set axis limit for cleaner plots
+min_x = min(trajectory(10, :));
+max_x = max(trajectory(10, :));
+min_z = min(trajectory(12, :));
+max_z = max(trajectory(12, :));
+axis([min_x-10, max_x+10, ... 
+      min_z-10, max_z+10]);
 
 end
