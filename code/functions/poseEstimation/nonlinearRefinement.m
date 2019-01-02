@@ -1,5 +1,5 @@
-function [R_C_W, t_C_W] = nonlinearOptimization(keypoints, landmarks, R_C_W_guess, t_C_W_guess, K)
-%%NONLINEAROPTIMIZATION Improve the estimated pose by minimizing the
+function [R_C_W, t_C_W] = nonlinearRefinement(keypoints, landmarks, R_C_W_guess, t_C_W_guess, K)
+%%NONLINEARREFINEMENT Improve the estimated pose by minimizing the
 %%reprojection error using Levenberg-Marquardt method
 %
 % INPUT:

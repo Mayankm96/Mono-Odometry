@@ -62,7 +62,7 @@ state.X = state.X(p3p_inlier_mask==true,:);
 state.P = state.P(p3p_inlier_mask==true,:);
 
 % refine camera pose
-[R_C2_W, t_C2_W] = nonlinearOptimization(state.P, state.X, R_C2_W, t_C2_W, K);
+[R_C2_W, t_C2_W] = nonlinearRefinement(state.P, state.X, R_C2_W, t_C2_W, K);
 
 T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
@@ -185,20 +185,6 @@ end
 state.C = [state.C; C_new_kpts(bookkeeping==true, :)];
 state.F = [state.F; C_new_kpts(bookkeeping==true, :)];
 state.T = [state.T; repmat(reshape(T_C2_W, [1, 12]), [nnz(bookkeeping), 1]) ];
-
-
-% if ~isempty(T_C2_W)
-%         % don't add if something close is already in C
-%         [~, mask_C] = nonMaxSuppression(query_keypoints', state.C', 8, size(curr_frame)); 
-% 
-%         % don't add if something close is already in P
-%         [~, mask_P] = nonMaxSuppression(query_keypoints', state.P', 8, size(curr_frame)); 
-% 
-%         new_keypoints = query_keypoints(bitand(mask_C,mask_P),:);
-%         state.C= [state.C; new_keypoints];
-%         state.F =[state.F; new_keypoints];
-%         state.T= [state.T; repmat(reshape(T_C2_W, [1,12]), [size(new_keypoints,1), 1])];
-% end
 
 
 % status display

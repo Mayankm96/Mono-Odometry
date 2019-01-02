@@ -5,9 +5,12 @@ function [best_R, best_t, best_is_inlier] = disambiguateP3P(keypoints, landmarks
 % INPUT:
 %   - keypoints (N, 2): keypoints in [u, v] coordinates
 %   - landmarks (N, 3): 3D landmarks in world frame
-%   - poses (3, 16): p3p solutions from the cam to the world frame
+%   - poses (4, 12): p3p solutions from the cam to the world frame
 %                   [ 3x1 position(solution1) 3x3 orientation(solution1)...
-%                     3x1 position(solution2) 3x3 orientation(solution2)]
+%                     3x1 position(solution2) 3x3 orientation(solution2)...
+%                     3x1 position(solution3) 3x3 orientation(solution3)...
+%                     3x1 position(solution4) 3x3 orientation(solution4)...]
+%
 %   - K (3, 3): intrinsic camera matrix
 %   - pixel_tolerance: pixel tolerance to consider as inlier
 %
@@ -17,9 +20,9 @@ function [best_R, best_t, best_is_inlier] = disambiguateP3P(keypoints, landmarks
 %   - best_is_inlier(N, 1): mask over keypoints that correspond to best solution
 
 % extract rotation and translation solutions
-Rots = zeros(3, 3, 2);
-ts = zeros(3, 2);
-for index = 0:1
+Rots = zeros(3, 3, 4);
+ts = zeros(3, 4);
+for index = 0:3
     % Given noisy data, P3P may return complex values: In this case
     % retain only the real part.
     R_C_W_ii = real(poses(:, (2 + index * 4):(4 + index * 4)));
@@ -35,8 +38,8 @@ num_points = size(landmarks, 1);
 % initialize variables
 max_inliers = 0;
 best_is_inlier = zeros(num_points, 1);
-best_R = eye(3,3);
-best_t = zeros(3, 1);
+best_R = [];
+best_t = [];
 
 for index = 1:size(Rots, 3)
     R = Rots(:, :, index);
@@ -49,17 +52,24 @@ for index = 1:size(Rots, 3)
     pts = M * [landmarks'; ones(1, num_points)];
     pts = bsxfun (@rdivide, pts, pts(3,:));
 
-    % compute error
-    errors = sqrt(sum((keypoints' - pts(1:2, :)).^2, 1));
+    % count points with negative z
+    num_points_behind_camera = sum(pts(3,:) < 0);
 
-    % find inlier points
-    is_inlier = errors < pixel_tolerance;
+    if num_points_behind_camera == 0
 
-    if nnz(is_inlier) > max_inliers
-        max_inliers = nnz(is_inlier);
-        best_is_inlier = is_inlier;
-        best_R = R;
-        best_t = t;
+      % compute error
+      errors = sqrt(sum((keypoints' - pts(1:2, :)).^2, 1));
+
+      % find inlier points
+      is_inlier = errors < pixel_tolerance;
+
+      if nnz(is_inlier) > max_inliers
+          % update maximum count
+          max_inliers = nnz(is_inlier);
+          best_is_inlier = is_inlier;
+          best_R = R;
+          best_t = t;
+      end
     end
 end
 
