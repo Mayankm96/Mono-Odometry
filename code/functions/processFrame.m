@@ -1,5 +1,5 @@
-function [state, pose, num_p3p_inliers, tracked_state_keypts] = processFrame ...
-                                    (curr_frame, prev_frame, prev_state, K, process_params)
+function [state, pose, tracked_state_keypts] = processFrame ...
+                                    (curr_frame, prev_frame, prev_state, K, process_params, verbose)
 %%PROCESSFRAME Perform continuous VO pipeline with a markov assumption over
 %%the state of the VO algorithm in which new landmarks are added to
 %%maintain consistency
@@ -13,11 +13,11 @@ function [state, pose, num_p3p_inliers, tracked_state_keypts] = processFrame ...
 %       - C(M, 2): candidate keypoints 
 %   - K(3, 3): camera intrinsic matrix
 %   - params: struct includes all parameters under "process" scope
+%   - verbose: verbosity prints log messages
 %
 % OUTPUT:
 %   - state(struct): inculdes state.P(K, 2) & state.X(K, 3)
 %   - pose (3, 4): pose of camera with respect to world frame
-%   - num_p3p_inliers: number of inliers in P3P using RANSAC
 %   - tracked_state_keypts(K, 1): keypoint indices tracked through KLT
 
 %% Construct the state S strcut
@@ -67,26 +67,15 @@ state.P = state.P(p3p_inlier_mask==true,:);
 T_C2_W = [R_C2_W, t_C2_W];
 num_p3p_inliers = nnz(p3p_inlier_mask);
 
-% subplot(2, 1, 2)
-% imshow(curr_frame)
-% hold on
-% plot(state.P(p3p_inlier_mask, 1), state.P(p3p_inlier_mask, 2), '+g', 'LineWidth', 2);
-
 % camera pose with respect to world 
 pose = [R_C2_W', - R_C2_W' * t_C2_W];
 
 % Remove landmarks that lie behind the camera
-% points_3D = T_C2_W(:, 1:3) * state.X' + T_C2_W(:, 4);
-% state.X = state.X(points_3D(3, :) > 0, :);
-% state.P = state.P(points_3D(3, :) > 0, :);
+points_3D = T_C2_W(:, 1:3) * state.X' + T_C2_W(:, 4);
+state.X = state.X(points_3D(3, :) > 0, :);
+state.P = state.P(points_3D(3, :) > 0, :);
 
 %% Step 3: Triangulating new landmarks from candidate keypoints in previous state
-% query_keypoints = computeHarrisFeatures(curr_frame, process_params.harris);
-% 
-% if isempty(prev_state.C)
-%     state.C = query_keypoints;
-%     state.F = query_keypoints;
-%     state.T = repmat(reshape(T_C2_W, [1,12]), [size(query_keypoints,1), 1]);    
 
 if ~isempty(prev_state.C)
     
@@ -188,14 +177,11 @@ state.T = [state.T; repmat(reshape(T_C2_W, [1, 12]), [nnz(bookkeeping), 1]) ];
 
 
 % status display
-fprintf('\n----------- Summary -----------');
-fprintf('\n[Previous] Total keypoints: %d, Total candidates: %d', length(prev_state.P), length(prev_state.C));
-fprintf('\n[Current] Total keypoints: %d, Total candidates: %d', length(state.P), length(state.C));
-fprintf('\n-------------------------------\n');
-
-% subplot(2, 1, 2)
-% imshow(curr_frame)
-% hold on
-% plot(state.C(:, 1), state.C(:, 2), '+c', 'LineWidth', 2);
-% plot(state.P(:, 1), state.P(:, 2), '+g', 'LineWidth', 2);
+if verbose
+    fprintf('\n----------- Summary -----------');
+    fprintf('\n[Previous] Total keypoints: %d, Total candidates: %d', length(prev_state.P), length(prev_state.C));
+    fprintf('\n[Current] Total keypoints: %d, Total candidates: %d', length(state.P), length(state.C));
+    fprintf('\nLocalization occurred  with %d inliers!', num_p3p_inliers);    
+    fprintf('\n-------------------------------\n');
+end
 end

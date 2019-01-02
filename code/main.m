@@ -6,10 +6,13 @@ close all;
 addpath(genpath(cd)); % load all functions
 configFile; % load parameters
 
+%% For full screen plotting
+figure('units','normalized','outerposition',[0 0 1 1])
+
 %% Starting parallel pooling (requires Parallel Processing Toolbox)
 % This section takes a while to load for the first time
 % To shutdown, run: delete(gcp('nocreate'));
-if(data_params.use_multithreads)
+if(use_multithreads)
     if (isempty(gcp))
         parpool();
     end
@@ -94,7 +97,7 @@ trajectory = [];
 % Cell to record landmarks from latest 20 states
 num_of_latest_states = 20;
 pointcloud{1, num_of_latest_states} = [];
-pointcloud_cell_index = 0;
+pointcloud_cell_index = 1;
 
 % frame to start continuous operation from 
 start_frame = bootstrap_frames(2) + 1;
@@ -116,22 +119,29 @@ for i = start_frame:last_frame
     end
     
     % process the input frame
-    [state, pose, num_p3p_inliers, tracked_state_keypts] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process);
+    [state, pose, tracked_state_keypts] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process, verbose);
     
     % Check camera pose
     if (~isempty(pose))
         % append to the trajectory cell
         trajectory = [reshape(pose, [12, 1]), trajectory]; 
-        disp(['Frame ' num2str(i) ' localized with ' num2str(num_p3p_inliers) ' inliers!']);    
         % Save landmarks from latest 20 states 
-        pointcloud{pointcloud_cell_index+1} = state.X;
-        pointcloud_cell_index = mod( (pointcloud_cell_index+1), num_of_latest_states);
+        % TODO! Fix: Inefficient hack to make plotting easier
+        if pointcloud_cell_index > num_of_latest_states
+            for j = 1:(num_of_latest_states - 1)
+                pointcloud{j} = pointcloud{j+1};
+            end
+            pointcloud_cell_index = num_of_latest_states;
+        end
+        pointcloud{pointcloud_cell_index} = state.X;
+        pointcloud_cell_index = pointcloud_cell_index + 1;
     else
         warning(['Frame ' num2str(i) ' failed tracking!']);
     end
     
     % plot the result
-    plotOverview(curr_image, state, prev_state, tracked_state_keypts, trajectory, pointcloud, num_of_latest_states);
+    plotOverview(curr_image, state, prev_state, tracked_state_keypts, ...
+        trajectory, pointcloud, num_of_latest_states);
     
     % update the state and image for next iteration
     prev_state = state;

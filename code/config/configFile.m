@@ -14,10 +14,14 @@ data_params.malaga_path = '../data/malaga-urban-dataset-extract-07';
 data_params.parking_path = '../data/parking';
 % Set flag to 1 to plot groundtruth as well
 data_params.show_gt_flag = 1;
+
+%% General
 % Use parallel threads (requires Parallel Processing Toolbox)
 % !! TO-DO: fix parfor and for loops for this functionality!
-data_params.use_multithreads = 0;                % 0: disabled, 1: enabled
+use_multithreads = 0;                % 0: disabled, 1: enabled
 
+% Print log messages
+verbose = 1;                         % 0: disabled, 1: enabled
 %% [Bootstrap]
 % For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
