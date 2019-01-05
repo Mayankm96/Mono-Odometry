@@ -9,7 +9,7 @@ function [best_R, best_t, best_is_inlier] = disambiguateP3P(keypoints, landmarks
 %                   [ 3x1 position(solution1) 3x3 orientation(solution1)...
 %                     3x1 position(solution2) 3x3 orientation(solution2)...
 %                     3x1 position(solution3) 3x3 orientation(solution3)...
-%                     3x1 position(solution4) 3x3 orientation(solution4)...]
+%                     3x1 position(solution4) 3x3 orientation(solution4)]
 %
 %   - K (3, 3): intrinsic camera matrix
 %   - pixel_tolerance: pixel tolerance to consider as inlier
@@ -52,24 +52,18 @@ for index = 1:size(Rots, 3)
     pts = M * [landmarks'; ones(1, num_points)];
     pts = bsxfun (@rdivide, pts, pts(3,:));
 
-    % count points with negative z
-    num_points_behind_camera = sum(pts(3,:) < 0);
+    % compute error
+    errors = sqrt(sum((keypoints' - pts(1:2, :)).^2, 1));
 
-    if num_points_behind_camera == 0
+    % find inlier points
+    is_inlier = errors < pixel_tolerance;
 
-      % compute error
-      errors = sqrt(sum((keypoints' - pts(1:2, :)).^2, 1));
-
-      % find inlier points
-      is_inlier = errors < pixel_tolerance;
-
-      if nnz(is_inlier) > max_inliers
-          % update maximum count
-          max_inliers = nnz(is_inlier);
-          best_is_inlier = is_inlier;
-          best_R = R;
-          best_t = t;
-      end
+    if nnz(is_inlier) > max_inliers
+      % update maximum count
+      max_inliers = nnz(is_inlier);
+      best_is_inlier = is_inlier;
+      best_R = R;
+      best_t = t;
     end
 end
 
