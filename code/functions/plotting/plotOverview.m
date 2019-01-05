@@ -1,5 +1,5 @@
 function plotOverview(curr_image, curr_state, prev_state, tracked_state_keypts, ...
-                      trajectory, pointcloud, num_of_latest_states)
+                      trajectory, pointcloud, num_of_latest_states, varargin)
 %%PLOTOVERVIEW Pretty plotting 
 %
 % INPUT:
@@ -10,6 +10,7 @@ function plotOverview(curr_image, curr_state, prev_state, tracked_state_keypts, 
 %   - trajectory(3, N): matrix storing entire estimated trajectory poses
 %   - pointcloud(N): cells containing the landmarks detected at each pose
 %   - num_of_latest_states: number of recent poses to display
+%   - varargin: Arguments to print ground truth
 %
 % NOTE: 
 % trajectory: Index 1 corresponds to the most recent entry 
@@ -93,6 +94,11 @@ hold on; grid on;
 plot(trajectory(10, 1), trajectory(12, 1),'b.-')
 title('Full Trajectory');
 xlabel('x (in meters)'); ylabel('z (in meters)');
+% plot ground truth if argument received
+if (numel(varargin) == 1) 
+    plot(varargin{1}(1), varargin{1}(2),'r.-')
+    legend('Estimated Pose', 'Ground Truth');
+end
 % set axis limit for cleaner plots
 min_x = min(trajectory(10, :));
 max_x = max(trajectory(10, :));

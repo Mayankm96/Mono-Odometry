@@ -16,4 +16,3 @@ keypoints = selectKeypoints(harris_score, harris_params.num_keypoints, ...
 keypoints = fliplr(keypoints);
 
 end
-

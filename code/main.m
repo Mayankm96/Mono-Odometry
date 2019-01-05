@@ -26,7 +26,6 @@ if ds == 0
     ground_truth = load([kitti_path '/poses/00.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
     last_frame = 4540;
-
 elseif ds == 1
     % Path containing the many files of Malaga 7.
     malaga_path = data_params.malaga_path;
