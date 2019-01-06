@@ -5,7 +5,7 @@
 %% General
 
 % Choose which dataset to evaluate VO on
-ds = 1;                              % 0: KITTI, 1: Malaga, 2: parking
+ds = 2;                              % 0: KITTI, 1: Malaga, 2: parking, 3: indoor
 
 % Print log messages
 verbose = 1;                         % 0: disabled, 1: enabled
@@ -26,6 +26,9 @@ data_params.malaga_path = '../data/malaga-urban-dataset-extract-07';
 % For Parking dataset
 data_params.parking_path = '../data/parking';
 
+% For Indoor dataset
+data_params.indoor_path = '../data/va4mr_new';
+
 %% Load parameters specific to chosen dataset
 if ds == 0
     % KITTI Dataset
@@ -36,6 +39,9 @@ elseif ds == 1
 elseif ds == 2
     % Parking Dataset
     paramsParking;
+elseif ds == 3
+    % Indoor Dataset
+    paramsIndoor;
 else
     assert(false);
 end

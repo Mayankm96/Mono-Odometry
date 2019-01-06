@@ -56,3 +56,12 @@ vo_params.process.harris.nonmaximum_supression_radius = 10;
 % For feature matching
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;
+
+%% [Additional Parameters]
+additional_fix.flag = false;
+additional_fix.bootstrap_interval = 20;
+
+%% [Pretty Plotting]
+plot_params.max_landmarks = 1500;
+plot_params.margin_full = 15;
+plot_params.margin_local = 15;

@@ -32,6 +32,13 @@ elseif ds == 2
     last_frame = 598;
     ground_truth = load([parking_path '/poses.txt']);
     ground_truth = ground_truth(:, [end-8 end]);
+elseif ds == 3
+    % Path containing images, depths and all...
+    indoor_path = data_params.indoor_path;
+    assert(exist('indoor_path', 'var') ~= 0);
+    images = dir(indoor_path);
+    left_images = images(3:2:end);
+    last_frame = length(left_images);
 else
     assert(false);
 end
@@ -58,16 +65,16 @@ elseif ds == 2
         sprintf('/images/img_%05d.png',bootstrap_frames(1))]));
     img1 = rgb2gray(imread([parking_path ...
         sprintf('/images/img_%05d.png',bootstrap_frames(2))]));
+elseif ds == 3
+    img0 = imread([indoor_path '/' left_images(bootstrap_frames(1)).name]);
+    img1 = imread([indoor_path '/' left_images(bootstrap_frames(2)).name]);
+    % Since ground truth we cannot plot it. Making this behavior explicit
+    show_gt_flag = 0;
 else
     assert(false);
 end
 
 [landmarks, I2_keypts] = bootstrap(img0, img1, vo_params.bootstrap, K);
-
-fprintf('\n\nBootstrap finished !');
-
-%% Continuous operation
-
 % Create initial state using the output of bootstrapping
 prev_state.P = I2_keypts;   % NOTE: M x 2 with [u, v] notation
 prev_state.X = landmarks;   % NOTE: M x 3
@@ -75,6 +82,10 @@ prev_state.C = [];
 prev_state.F = [];
 prev_state.T = [];
 prev_image = img1;
+
+fprintf('\n\nBootstrap finished !');
+
+%% Continuous operation
 
 % 12xM matrix to record entire valid trajectory
 trajectory = [];
@@ -92,6 +103,7 @@ for i = start_frame:last_frame
     % read frames from the appropriate chosen dataset
     if ds == 0
         curr_image = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i)]);
+        prev_image = imread([kitti_path '/00/image_0/' sprintf('%06d.png',i-1)]);
     elseif ds == 1
         curr_image = rgb2gray(imread([malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
@@ -99,6 +111,9 @@ for i = start_frame:last_frame
     elseif ds == 2
         curr_image = im2uint8(rgb2gray(imread([parking_path ...
             sprintf('/images/img_%05d.png',i)])));
+    elseif ds == 3
+        curr_image = im2uint8(imread([indoor_path '/' ...
+            left_images(i).name]));    
     else
         assert(false);
     end
@@ -127,15 +142,14 @@ for i = start_frame:last_frame
     % plot the result
     if show_gt_flag
         plotOverview(curr_image, state, trajectory, pointcloud, ...
-            num_of_latest_states, ground_truth(i, :));
+            num_of_latest_states, plot_params, ground_truth(i, :));
     else
         plotOverview(curr_image, state, trajectory, pointcloud, ...
-            num_of_latest_states);
+            num_of_latest_states, plot_params);
     end
     
     % update the state and image for next iteration
     prev_state = state;
-    prev_image = curr_image;
     
     % Loop safety (unnecessary)
     pause(0.001);

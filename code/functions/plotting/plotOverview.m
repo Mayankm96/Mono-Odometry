@@ -1,5 +1,5 @@
 function plotOverview(curr_image, curr_state, trajectory, pointcloud, ...
-                      num_of_latest_states, varargin)
+                      num_of_latest_states, params,  varargin)
 %%PLOTOVERVIEW Pretty plotting 
 %
 % INPUT:
@@ -8,6 +8,7 @@ function plotOverview(curr_image, curr_state, trajectory, pointcloud, ...
 %   - trajectory(3, N): matrix storing entire estimated trajectory poses
 %   - pointcloud(N): cells containing the landmarks detected at each pose
 %   - num_of_latest_states: number of recent poses to display
+%   - params: pretty plotting parameters
 %   - varargin: Arguments to print ground truth
 %
 % NOTE: 
@@ -59,7 +60,7 @@ end
 
 % set axis limit for cleaner plots
 t_W_C = trajectory(10:12, 1);
-margin = 15;
+margin = params.margin_local;
 axis([t_W_C(1)-margin, t_W_C(1)+margin, ... 
       t_W_C(2)-margin, t_W_C(2)+margin, ...
       t_W_C(3)-margin, t_W_C(3)+margin]);
@@ -85,7 +86,7 @@ plot(range, count_landmarks);
 title(['Status of latest ', num2str(num_of_latest_states),' frames']);  
 xlabel('Frame number');
 ylabel('Number of landmarks')
-ylim([0, 1500]);
+ylim([0, params.max_landmarks]);
 xlim([-num_of_latest_states + 1, 0])
 grid on;
 
@@ -105,7 +106,7 @@ if (numel(varargin) == 1)
     legend('Estimated Pose', 'Ground Truth');
 end
 % set axis limit for cleaner plots
-margin = 15;
+margin = params.margin_full;
 min_x = min(trajectory(10, :));
 max_x = max(trajectory(10, :));
 min_z = min(trajectory(12, :));

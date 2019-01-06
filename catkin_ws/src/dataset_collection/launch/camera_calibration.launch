@@ -16,6 +16,6 @@
   </node>
 
   <node pkg="camera_calibration" type="cameracalibrator.py" name="mono_calibration"
-      args="--size 8x6 --square 0.235 image:=/web_cam/image_raw camera:=/web_cam">
+      args="--size 8x6 --square 0.0235 image:=/web_cam/image_raw camera:=/web_cam">
   </node>
 </launch>

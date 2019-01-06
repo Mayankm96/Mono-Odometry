@@ -16,8 +16,8 @@ bootstrap_frames = [0, 2];
 % For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
 vo_params.bootstrap.harris.kappa = 0.08;
-vo_params.bootstrap.harris.num_keypoints = 1200;
-vo_params.bootstrap.harris.nonmaximum_supression_radius = 10;
+vo_params.bootstrap.harris.num_keypoints = 500;
+vo_params.bootstrap.harris.nonmaximum_supression_radius = 20;
 
 % For KLT tracking
 vo_params.bootstrap.KLT.num_pyramid_levels = 3;
@@ -50,9 +50,18 @@ vo_params.process.new_candidate_tolerance = 8;
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
 vo_params.process.harris.kappa = 0.08;
-vo_params.process.harris.num_keypoints = 1200;
-vo_params.process.harris.nonmaximum_supression_radius = 10;
+vo_params.process.harris.num_keypoints = 300;
+vo_params.process.harris.nonmaximum_supression_radius = 20;
 
 % For feature matching
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;
+
+%% [Additional Parameters]
+additional_fix.flag = true;
+additional_fix.bootstrap_interval = 20;
+
+%% [Pretty Plotting]
+plot_params.max_landmarks = 800;
+plot_params.margin_full = 15;
+plot_params.margin_local = 15;

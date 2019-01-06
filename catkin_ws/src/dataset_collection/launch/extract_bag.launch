@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="rosbag" type="play" name="rosbag" required="true" args="$(find dataset_collection)/bag/va4mr_indoor_new.bag"/>
+
+  <node name="extract" pkg="image_view" type="extract_images" respawn="false"
+    required="true" output="screen" cwd="ROS_HOME">
+    <remap from="image" to="/image_rect"/>
+  </node>
+</launch>

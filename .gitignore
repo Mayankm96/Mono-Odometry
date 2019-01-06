@@ -6,6 +6,9 @@ data/parking
 **/devel
 **/build
 **/logging
+*.bag
+**/va4mr
+**/va4mr_new
 
 # Windows default autosave extension
 *.asv
