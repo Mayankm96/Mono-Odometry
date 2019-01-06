@@ -30,7 +30,7 @@ vo_params.bootstrap.RANSAC.pixel_tolerance = 3;
 %% [ProcessFrame]
 % For KLT tracker
 % See: https://ch.mathworks.com/help/vision/ref/vision.pointtracker-system-object.html
-vo_params.process.KLT.num_pyramid_levels = 3
+vo_params.process.KLT.num_pyramid_levels = 3;
 vo_params.process.KLT.max_bidirectional_error = 6;
 vo_params.process.KLT.block_size = [31 31];
 vo_params.process.KLT.max_iterations = 30;
@@ -55,9 +55,9 @@ vo_params.process.harris.match_lambda = 10;
 
 %% [Additional Parameters]
 additional_fix.flag = false;
-additional_fix.bootstrap_interval = 20;
+additional_fix.bootstrap_interval = 35;
 
 %% [Pretty Plotting]
 plot_params.max_landmarks = 800;
-plot_params.margin_full = 15;
-plot_params.margin_local = 15;
+plot_params.margin_full = 5;
+plot_params.margin_local = 5;

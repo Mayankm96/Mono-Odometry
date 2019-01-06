@@ -58,7 +58,7 @@ vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;
 
 %% [Additional Parameters]
-additional_fix.flag = false;
+additional_fix.flag = true;
 additional_fix.bootstrap_interval = 20;
 
 %% [Pretty Plotting]

@@ -29,17 +29,4 @@ wget -c https://s3.eu-central-1.amazonaws.com/avg-kitti/raw_data/2011_09_26_cali
 
 ## Proposed Implementation of the Algorithm
 
-### Keypoints Detection
-
-In this section, the keypoints detection and matching is divided into following separate stages:
-* __feature processing:__ each image is searched for locations that are likely to match well in other images
-* __feature matching:__ efficiently searching for likely matching candidates in other images
-* __feature tracking:__ unlike to the second stage, the correspondences are searched in a small neighborhood around each detected feature and across frames at different time steps
-
-### Egomotion Estimation
-
-Using P3P algorithm along with RANSAC, incremental rotation and translation is estimated.
-
-## To-Dos
-
-- [ ] fix parfor and for loops to enable running without parallel processing
+Please find attached the accompanied report.

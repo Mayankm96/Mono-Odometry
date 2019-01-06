@@ -75,6 +75,7 @@ else
 end
 
 [landmarks, I2_keypts] = bootstrap(img0, img1, vo_params.bootstrap, K);
+
 % Create initial state using the output of bootstrapping
 prev_state.P = I2_keypts;   % NOTE: M x 2 with [u, v] notation
 prev_state.X = landmarks;   % NOTE: M x 3
@@ -108,12 +109,19 @@ for i = start_frame:last_frame
         curr_image = rgb2gray(imread([malaga_path ...
             '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
             left_images(i).name]));
+        prev_image = rgb2gray(imread([malaga_path ...
+            '/malaga-urban-dataset-extract-07_rectified_800x600_Images/' ...
+            left_images(i-1).name]));
     elseif ds == 2
         curr_image = im2uint8(rgb2gray(imread([parking_path ...
             sprintf('/images/img_%05d.png',i)])));
+        prev_image = im2uint8(rgb2gray(imread([parking_path ...
+            sprintf('/images/img_%05d.png',i-1)])));
     elseif ds == 3
         curr_image = im2uint8(imread([indoor_path '/' ...
-            left_images(i).name]));    
+            left_images(i).name]));
+        prev_image = im2uint8(imread([indoor_path '/' ...
+            left_images(i-1).name]));
     else
         assert(false);
     end
@@ -147,13 +155,33 @@ for i = start_frame:last_frame
         plotOverview(curr_image, state, trajectory, pointcloud, ...
             num_of_latest_states, plot_params);
     end
-    
+
     % update the state and image for next iteration
     prev_state = state;
-    
+
+    if additional_fix.flag
+        % bootstrap again to fix the scaling issue
+        if mod(i, additional_fix.bootstrap_interval) == 0
+        [landmarks, I2_keypts] = bootstrap(prev_image, curr_image, vo_params.bootstrap, K);
+        
+        % transform new landmarks to global
+        R = pose(:, 1:3);
+        t = pose(:, 4);
+        landmarks = R * landmarks' + t;
+        landmarks = landmarks';
+      
+        % Create initial state using the output of bootstrapping
+        prev_state.P = I2_keypts;   % NOTE: M x 2 with [u, v] notation
+        prev_state.X = landmarks;   % NOTE: M x 3
+        prev_state.C = [];
+        prev_state.F = [];
+        prev_state.T = [];
+        
+        end
+    end
     % Loop safety (unnecessary)
     pause(0.001);
-    
+
     % Save image for videomaking
     % saveas(fig, sprintf('logging/parking/%06d.png', i));
 end
