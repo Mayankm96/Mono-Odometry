@@ -5,7 +5,7 @@
 %% General
 
 % Choose which dataset to evaluate VO on
-ds = 2;                              % 0: KITTI, 1: Malaga, 2: parking, 3: indoor
+ds = 0;                              % 0: KITTI, 1: Malaga, 2: parking, 3: indoor
 
 % Print log messages
 verbose = 1;                         % 0: disabled, 1: enabled
