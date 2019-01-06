@@ -7,16 +7,7 @@ addpath(genpath(cd)); % load all functions
 configFile; % load parameters
 
 %% For full screen plotting
-figure('units','normalized','outerposition',[0 0 1 1])
-
-%% Starting parallel pooling (requires Parallel Processing Toolbox)
-% This section takes a while to load for the first time
-% To shutdown, run: delete(gcp('nocreate'));
-if(use_multithreads)
-    if (isempty(gcp))
-        parpool();
-    end
-end
+fig = figure('units','normalized','outerposition',[0 0 1 1]);
 
 %% Setup
 if ds == 0
@@ -48,7 +39,6 @@ end
 %% Bootstrap
 % need to set bootstrap_frames
 fprintf('\nWaiting for Bootstrapping ...');
-bootstrap_frames = [1, 3];
 if ds == 0
     img0 = imread([kitti_path '/00/image_0/' ...
         sprintf('%06d.png',bootstrap_frames(1))]);
@@ -114,7 +104,7 @@ for i = start_frame:last_frame
     end
 
     % process the input frame
-    [state, pose, tracked_state_keypts] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process, verbose);
+    [state, pose] = processFrame(curr_image, prev_image, prev_state, K, vo_params.process, verbose);
 
     % Check camera pose
     if (~isempty(pose))
@@ -136,17 +126,20 @@ for i = start_frame:last_frame
 
     % plot the result
     if show_gt_flag
-        plotOverview(curr_image, state, prev_state, tracked_state_keypts, ...
-            trajectory, pointcloud, num_of_latest_states, ground_truth(i - 2, :));
+        plotOverview(curr_image, state, trajectory, pointcloud, ...
+            num_of_latest_states, ground_truth(i, :));
     else
-        plotOverview(curr_image, state, prev_state, tracked_state_keypts, ...
-            trajectory, pointcloud, num_of_latest_states)
+        plotOverview(curr_image, state, trajectory, pointcloud, ...
+            num_of_latest_states);
     end
     
     % update the state and image for next iteration
     prev_state = state;
     prev_image = curr_image;
-
+    
     % Loop safety (unnecessary)
     pause(0.001);
+    
+    % Save image for videomaking
+    % saveas(fig, sprintf('logging/parking/%06d.png', i));
 end

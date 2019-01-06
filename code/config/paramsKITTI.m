@@ -9,10 +9,14 @@ K = [7.188560000000e+02 0 6.071928000000e+02
     0 0 1];
 
 %% [Bootstrap]
+
+% Bootsrap frames
+bootstrap_frames = [0, 2];
+
 % For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
 vo_params.bootstrap.harris.kappa = 0.08;
-vo_params.bootstrap.harris.num_keypoints = 1000;
+vo_params.bootstrap.harris.num_keypoints = 1200;
 vo_params.bootstrap.harris.nonmaximum_supression_radius = 10;
 
 % For KLT tracking
@@ -41,12 +45,14 @@ vo_params.process.p3p.min_inlier_count = 6;
 % For adding new landmarks
 vo_params.process.landmarks.bearing_min = 0.4 * pi/180;
 vo_params.process.landmarks.bearing_max = 4.0 * pi/180;
-vo_params.process.new_candidate_tolerance = 6;
+vo_params.process.new_candidate_tolerance = 8;
 
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
 vo_params.process.harris.kappa = 0.08;
-vo_params.process.harris.num_keypoints = 800;
+vo_params.process.harris.num_keypoints = 1200;
 vo_params.process.harris.nonmaximum_supression_radius = 10;
+
+% For feature matching
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;

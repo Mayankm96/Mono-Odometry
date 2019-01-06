@@ -9,6 +9,10 @@ K = [621.18428 0 404.0076
     0 0 1];  
 
 %% [Bootstrap]
+
+% Bootsrap frames
+bootstrap_frames = [1, 6];
+
 % For harris keypoint selector
 vo_params.bootstrap.harris.patch_size = 9;
 vo_params.bootstrap.harris.kappa = 0.08;
@@ -46,7 +50,9 @@ vo_params.process.new_candidate_tolerance = 6;
 % For harris keypoint selection and matching
 vo_params.process.harris.patch_size = 9;
 vo_params.process.harris.kappa = 0.08;
-vo_params.process.harris.num_keypoints = 800;
+vo_params.process.harris.num_keypoints = 1000;
 vo_params.process.harris.nonmaximum_supression_radius = 10;
+
+% For feature matching
 vo_params.process.harris.descriptor_radius = 9;
 vo_params.process.harris.match_lambda = 10;

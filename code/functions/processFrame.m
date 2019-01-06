@@ -1,5 +1,5 @@
-function [state, pose, tracked_state_keypts] = processFrame ...
-                                    (curr_frame, prev_frame, prev_state, K, process_params, verbose)
+function [state, pose] = processFrame ...
+                            (curr_frame, prev_frame, prev_state, K, process_params, verbose)
 %%PROCESSFRAME Perform continuous VO pipeline with a markov assumption over
 %%the state of the VO algorithm in which new landmarks are added to
 %%maintain consistency
@@ -18,7 +18,6 @@ function [state, pose, tracked_state_keypts] = processFrame ...
 % OUTPUT:
 %   - state(struct): inculdes state.P(K, 2) & state.X(K, 3)
 %   - pose (3, 4): pose of camera with respect to world frame
-%   - tracked_state_keypts(K, 1): keypoint indices tracked through KLT
 
 %% Construct the state S strcut
 % P: 2D tracked keypoints array (N, 2)
