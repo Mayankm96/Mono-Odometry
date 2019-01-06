@@ -3,6 +3,9 @@
 data/kitti
 data/malaga-urban-dataset-extract-07
 data/parking
+**/devel
+**/build
+**/logging
 
 # Windows default autosave extension
 *.asv

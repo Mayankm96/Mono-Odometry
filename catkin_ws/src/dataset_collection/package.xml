@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="1">
+  <name>dataset_collection</name>
+  <version>0.0.0</version>
+  <description>The dataset_collection package</description>
+
+  <maintainer email="mittalma@ethz.ch">Mayank Mittal</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>usb_cam</build_depend>
+  <run_depend>usb_cam</run_depend>
+
+</package>

@@ -1,0 +1,26 @@
+<launch>
+
+  <!-- camera image configuration -->
+  <arg name="image_width"   default="1280"/>
+  <arg name="image_height"  default="720"/>
+  <arg name="framerate"     default="10"/>
+  <arg name="calib_file"    default="package://dataset_collection/config/head_camera.yaml"/>
+
+  <!-- front camera -->
+  <node name="web_cam" pkg="usb_cam" type="usb_cam_node" output="screen">
+    <param name="image_width"       value="$(arg image_width)" />
+    <param name="image_height"      value="$(arg image_height)" />
+    <param name="framerate"         value="$(arg framerate)"/>
+    <param name="camera_frame_id"   value="cam_link" />
+    <param name="pixel_format"      value="mjpeg" />
+    <param name="autofocus"         value="true" />
+    <param name="camera_info_url"   value="$(arg calib_file)" />
+  </node>
+
+  <!-- rectify images -->
+  <node name="rectify" pkg="image_proc" type="image_proc" output="screen">
+    <remap from="image_raw" to="/web_cam/image_raw" />
+    <remap from="camera_info" to="/web_cam/camera_info" />
+  </node>
+
+</launch>
